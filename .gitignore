@@ -1,0 +1,9 @@
+# 소스 (로컬 유지)
+O*.csv
+build.py
+network_template.html
+graph_data.json
+persons.csv
+
+# macOS
+.DS_Store
