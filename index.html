@@ -456,8 +456,27 @@ async function loadData() {
 }
 
 function parseCSV(text) {
-  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-  return parsed.data;
+  // header:false 로 파싱해서 첫 행을 직접 헤더로 사용 (gviz의 빈 헤더 컬럼 문제 회피)
+  const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
+  const rows = parsed.data;
+  if (rows.length === 0) return [];
+  const header = rows[0].map(h => (h || '').trim());
+  const idx = {
+    id:      header.indexOf('id'),
+    sosok:   header.indexOf('소속'),
+    student: header.indexOf('학생'),
+    parentId: header.indexOf('부모id'),
+    parent:  header.indexOf('부모'),
+    role:    header.indexOf('역할'),
+  };
+  return rows.slice(1).map(r => ({
+    id:       idx.id       >= 0 ? (r[idx.id]       || '') : '',
+    소속:      idx.sosok    >= 0 ? (r[idx.sosok]    || '') : '',
+    학생:      idx.student  >= 0 ? (r[idx.student]  || '') : '',
+    부모id:    idx.parentId >= 0 ? (r[idx.parentId] || '') : '',
+    부모:      idx.parent   >= 0 ? (r[idx.parent]   || '') : '',
+    역할:      idx.role     >= 0 ? (r[idx.role]     || '') : '',
+  }));
 }
 
 function buildGraph(sheetsData) {
