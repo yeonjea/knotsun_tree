@@ -1016,6 +1016,8 @@ function applyTimelineLayout() {
             id: ghostId,
             originalId: n.id(),
             isGhost: true,
+            ghostCategory: p.category,
+            ghostCohort: p.cohort,
           },
           classes: 'timeline-ghost',
         });
@@ -1141,20 +1143,31 @@ function showTip(node, evt) {
   const isSpecialParent = ['스텝','조교','참여'].includes(d.firstParent);
   const parentLine = (!isSpecialParent && d.firstParent)
     ? `<div class="trow"><span class="tk">부모</span><span class="tv">${d.firstParent}</span></div>` : '';
-  const upN   = node.predecessors().nodes().length;
-  const downN = node.successors().nodes().length;
   const pendingBadge = (currentView !== 'all' && d.pendingParent)
     ? `<div class="tbadge" style="background:linear-gradient(135deg,rgba(255,183,77,0.25),rgba(255,138,101,0.25));color:#ffb74d;border-color:rgba(255,183,77,0.4)">⚠ 부모 ${d.pendingHint || '확인중'}</div>`
     : '';
+  // 계보 카운트: ghost는 엣지 없으므로 표시 안 함
+  let lineageHtml = '';
+  let ghostInfo = '';
+  if (d.isGhost) {
+    const originLabel = catLabel(d.firstCategory, d.firstCohort);
+    ghostInfo = `<div class="tbadge" style="background:rgba(200,200,255,0.12);color:#c7cee3;border-color:rgba(200,200,255,0.25);text-align:center;line-height:1.5">계보를 보려면<br><b style="color:#fff">${originLabel}</b> 셀의 <b>${d.name}</b>을 클릭하세요</div>`;
+  } else {
+    const upN   = node.predecessors().nodes().length;
+    const downN = node.successors().nodes().length;
+    lineageHtml = `
+      <div class="trow"><span class="tk">상위 계보</span><span class="tv" style="color:#ff5fb4;font-family:'JetBrains Mono',monospace">${upN}명</span></div>
+      <div class="trow"><span class="tk">하위 계보</span><span class="tv" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">${downN}명</span></div>`;
+  }
   tooltip.innerHTML = `
     <div class="tname">${d.name}</div>
-    <div class="tid">${d.id}</div>
+    <div class="tid">${d.id}${d.isGhost ? ' <span style="color:var(--text-muted)">(복제)</span>' : ''}</div>
     <div style="margin-bottom:10px;line-height:1.9">${roleHtml}</div>
     ${parentLine}
-    <div class="trow"><span class="tk">상위 계보</span><span class="tv" style="color:#ff5fb4;font-family:'JetBrains Mono',monospace">${upN}명</span></div>
-    <div class="trow"><span class="tk">하위 계보</span><span class="tv" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">${downN}명</span></div>
+    ${lineageHtml}
     ${d.isOriginal7 ? '<div class="tbadge">★ 최초 7인</div>' : ''}
     ${pendingBadge}
+    ${ghostInfo}
   `;
   // 노드의 실제 렌더 bounding box 기준으로 위치 계산 (커서 좌표 아님)
   const rBox = node.renderedBoundingBox();
@@ -1197,7 +1210,7 @@ cy.on('tap', e => {
   if (e.target === cy) cy.elements().removeClass('faded hl-down hl-up rootpick');
 });
 
-// ── 검색 (디바운스 + 결과 1개일 때만 화면 이동)
+// ── 검색 (디바운스 + 원본 1명 매칭일 때만 화면 이동)
 let searchTimer = null;
 document.getElementById('search').addEventListener('input', e => {
   clearTimeout(searchTimer);
@@ -1205,12 +1218,22 @@ document.getElementById('search').addEventListener('input', e => {
   searchTimer = setTimeout(() => {
     cy.nodes().removeClass('searchhit');
     if (!q) return;
-    const hits = cy.nodes().filter(n =>
-      n.data('name').toLowerCase().includes(q) || n.data('id').toLowerCase().includes(q)
-    );
-    hits.addClass('searchhit');
-    if (hits.length === 1) {
-      cy.animate({ center: { eles: hits }, zoom: 1.6 }, { duration: 500, easing: 'ease-out' });
+    // 검색 대상: 라벨 제외, 원본과 ghost 모두 매칭 (ghost는 원본 name/id를 승계)
+    const isSearchable = n => {
+      const id = n.data('id') || '';
+      return !id.startsWith('__label_');
+    };
+    const matches = n => {
+      const name = (n.data('name') || '').toLowerCase();
+      const id   = (n.data('id') || '').toLowerCase();
+      return name.includes(q) || id.includes(q);
+    };
+    const allHits = cy.nodes().filter(n => isSearchable(n) && matches(n));
+    allHits.addClass('searchhit');
+    // 원본 노드 매칭 수 (ghost 제외) 기준으로 화면 이동 여부 결정
+    const primaryCount = allHits.filter(n => !n.data('isGhost')).length;
+    if (primaryCount === 1 && allHits.length > 0) {
+      cy.animate({ center: { eles: allHits }, zoom: 1.4 }, { duration: 500, easing: 'ease-out' });
     }
   }, 300);
 });
@@ -1220,7 +1243,6 @@ function applyView(view) {
   currentView = view;
   // 이전 하이라이트 리셋 (선택/후손/조상)
   cy.elements().removeClass('faded hl-down hl-up rootpick');
-  // pendingParent 표시는 특정 기수 뷰에서만
   const isSpecificCohort = view !== 'all' && view !== 'O' && view !== 'Y';
   cy.nodes().forEach(n => {
     const nData = {
@@ -1234,7 +1256,6 @@ function applyView(view) {
     n.data('glow', col);
     n.data('showPending', isSpecificCohort && n.data('pendingParent'));
   });
-  // 표시/숨김
   const isVisible = (tags) => {
     if (view === 'all') return true;
     if (view === 'O' || view === 'Y') return tags.some(t => t.startsWith(view + '_'));
@@ -1242,7 +1263,6 @@ function applyView(view) {
   };
   cy.nodes().forEach(n => n.style('display', isVisible(n.data('participationTags') || []) ? 'element' : 'none'));
   cy.edges().forEach(e => e.style('display', isVisible(e.data('participationTags') || []) ? 'element' : 'none'));
-  // 항상 새로 배치 (전체/카테고리/기수 모두 동일)
   runLayout(currentLayout);
 }
 // 모든 필터 버튼 (전체 + 낯대 + 낯대Y)
