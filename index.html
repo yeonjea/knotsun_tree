@@ -1197,16 +1197,22 @@ cy.on('tap', e => {
   if (e.target === cy) cy.elements().removeClass('faded hl-down hl-up rootpick');
 });
 
-// ── 검색
+// ── 검색 (디바운스 + 결과 1개일 때만 화면 이동)
+let searchTimer = null;
 document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(searchTimer);
   const q = e.target.value.trim().toLowerCase();
-  cy.nodes().removeClass('searchhit');
-  if (!q) return;
-  const hits = cy.nodes().filter(n =>
-    n.data('name').toLowerCase().includes(q) || n.data('id').toLowerCase().includes(q)
-  );
-  hits.addClass('searchhit');
-  if (hits.length > 0) cy.animate({ center: { eles: hits }, zoom: 1.3 }, { duration: 500, easing: 'ease-out' });
+  searchTimer = setTimeout(() => {
+    cy.nodes().removeClass('searchhit');
+    if (!q) return;
+    const hits = cy.nodes().filter(n =>
+      n.data('name').toLowerCase().includes(q) || n.data('id').toLowerCase().includes(q)
+    );
+    hits.addClass('searchhit');
+    if (hits.length === 1) {
+      cy.animate({ center: { eles: hits }, zoom: 1.6 }, { duration: 500, easing: 'ease-out' });
+    }
+  }, 300);
 });
 
 // ── 기수 필터 (표시/숨김 + 색 재계산) — 값은 'all' 또는 'O_5' / 'Y_0' 태그
