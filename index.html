@@ -156,6 +156,9 @@
   .swatch.cohort7   { background: #4dd0e1; color: #4dd0e1; }
   .swatch.cohort8   { background: #aed581; color: #aed581; }
   .swatch.cohort9   { background: #ce93d8; color: #ce93d8; }
+  .swatch.cohortY0  { background: #ffab91; color: #ffab91; }
+  .swatch.cohortY1  { background: #80cbc4; color: #80cbc4; }
+  .swatch.cohortY2  { background: #b39ddb; color: #b39ddb; }
 
   .rank .row {
     display: flex; align-items: center;
@@ -343,23 +346,36 @@
 <div id="app">
   <div id="sidebar">
     <div class="logo">낯선대학 계보</div>
-    <div class="subtitle">1~9기 · 부모→자식 초대 네트워크</div>
+    <div class="subtitle">낯대 1~9기 · 낯대Y 0~2기</div>
 
     <div class="section-title">검색</div>
     <input type="text" id="search" placeholder="이름 또는 ID (예: O_1_01)">
 
-    <div class="section-title">기수 필터</div>
+    <div class="section-title">전체</div>
     <div class="btn-group" id="cohortFilter">
-      <button class="btn active" data-cohort="all">전체</button>
-      <button class="btn" data-cohort="1">1</button>
-      <button class="btn" data-cohort="2">2</button>
-      <button class="btn" data-cohort="3">3</button>
-      <button class="btn" data-cohort="4">4</button>
-      <button class="btn" data-cohort="5">5</button>
-      <button class="btn" data-cohort="6">6</button>
-      <button class="btn" data-cohort="7">7</button>
-      <button class="btn" data-cohort="8">8</button>
-      <button class="btn" data-cohort="9">9</button>
+      <button class="btn active" data-view="all">전체 보기</button>
+    </div>
+
+    <div class="section-title" style="margin-top:12px">낯대</div>
+    <div class="btn-group">
+      <button class="btn cohort-btn" data-view="O">전체</button>
+      <button class="btn cohort-btn" data-view="O_1">1기</button>
+      <button class="btn cohort-btn" data-view="O_2">2기</button>
+      <button class="btn cohort-btn" data-view="O_3">3기</button>
+      <button class="btn cohort-btn" data-view="O_4">4기</button>
+      <button class="btn cohort-btn" data-view="O_5">5기</button>
+      <button class="btn cohort-btn" data-view="O_6">6기</button>
+      <button class="btn cohort-btn" data-view="O_7">7기</button>
+      <button class="btn cohort-btn" data-view="O_8">8기</button>
+      <button class="btn cohort-btn" data-view="O_9">9기</button>
+    </div>
+
+    <div class="section-title" style="margin-top:12px">낯대Y</div>
+    <div class="btn-group">
+      <button class="btn cohort-btn" data-view="Y">전체</button>
+      <button class="btn cohort-btn" data-view="Y_0">0기</button>
+      <button class="btn cohort-btn" data-view="Y_1">1기</button>
+      <button class="btn cohort-btn" data-view="Y_2">2기</button>
     </div>
 
     <div class="section-title">레이아웃</div>
@@ -367,6 +383,7 @@
       <button class="btn active" data-layout="cose">관계망</button>
       <button class="btn" data-layout="dagre">계층형</button>
       <button class="btn" data-layout="concentric">동심원</button>
+      <button class="btn" data-layout="timeline">타임라인</button>
     </div>
 
     <div class="section-title">라벨</div>
@@ -379,8 +396,9 @@
     <div class="section-title">범례</div>
     <div class="legend">
       <div class="item"><span class="swatch gold"></span>최초 7인</div>
-      <div class="item"><span class="swatch orange"></span>스텝</div>
-      <div class="item"><span class="swatch gray"></span>조교</div>
+      <div class="item"><span class="swatch orange"></span>스텝 (기수별 모드)</div>
+      <div class="item"><span class="swatch gray"></span>조교 (기수별 모드)</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">낯대</div>
       <div class="item"><span class="swatch cohort1"></span>1기 (2016)</div>
       <div class="item"><span class="swatch cohort2"></span>2기 (2017)</div>
       <div class="item"><span class="swatch cohort3"></span>3기 (2018)</div>
@@ -390,6 +408,10 @@
       <div class="item"><span class="swatch cohort7"></span>7기 (2024)</div>
       <div class="item"><span class="swatch cohort8"></span>8기 (2025)</div>
       <div class="item"><span class="swatch cohort9"></span>9기 (2026, 진행중)</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">낯대Y</div>
+      <div class="item"><span class="swatch cohortY0"></span>Y 0기 (2017)</div>
+      <div class="item"><span class="swatch cohortY1"></span>Y 1기 (2018)</div>
+      <div class="item"><span class="swatch cohortY2"></span>Y 2기 (2019)</div>
     </div>
 
   </div>
@@ -428,7 +450,58 @@
 <script>
 // ── 시트 데이터 소스 (Google Sheets gviz CSV export)
 const SHEET_ID = "13doHJH9875nNQZE-tl_5YXi5zdj5l__0NsTnyEC-ZWE";
-const SHEETS = ['O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9'];
+const SHEETS = [
+  'O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9',
+  'Y_0','Y_1','Y_2'
+];
+const CATEGORIES = {
+  O: { label: '낯대',   cohorts: [1,2,3,4,5,6,7,8,9] },
+  Y: { label: '낯대Y',  cohorts: [0,1,2] }
+};
+// 시간순 배치 순서 (동심원용). 같은 연도에서는 O > Y > C > M 순.
+// 안쪽부터: 최초 7인 → O_1 → O_2 → Y_0 → O_3 → Y_1 → ...
+const COHORT_TIMELINE = [
+  { cat:'O', cohort:1 },  // 2016
+  { cat:'O', cohort:2 }, { cat:'Y', cohort:0 },  // 2017
+  { cat:'O', cohort:3 }, { cat:'Y', cohort:1 },  // 2018
+  { cat:'O', cohort:4 }, { cat:'Y', cohort:2 },  // 2019
+  { cat:'O', cohort:5 },  // 2020~2022
+  { cat:'O', cohort:6 },  // 2023
+  { cat:'O', cohort:7 },  // 2024
+  { cat:'O', cohort:8 },  // 2025
+  { cat:'O', cohort:9 },  // 2026
+];
+function cohortTimelineRank(cat, cohort) {
+  const i = COHORT_TIMELINE.findIndex(x => x.cat === cat && x.cohort === cohort);
+  return i >= 0 ? i : 99;
+}
+// (category, cohort) → 연도
+const COHORT_YEAR = {
+  O: {1:2016, 2:2017, 3:2018, 4:2019, 5:2020, 6:2023, 7:2024, 8:2025, 9:2026},
+  Y: {0:2017, 1:2018, 2:2019},
+};
+function cohortYear(cat, cohort) {
+  return (COHORT_YEAR[cat] || {})[cohort];
+}
+const CAT_ROW = { O:0, Y:1, C:2, M:3 };
+
+// 현재 뷰 모드에 따라 노드의 (카테고리, 기수) 반환
+// - 'all': 원 소속 (firstCategory / firstCohort)
+// - 'O' or 'Y': 그 카테고리 안에서 참여한 첫 기수
+// - 'O_5' 등 특정 기수: 그 값
+function viewCohortFor(n) {
+  const parts = n.data('participations') || [];
+  if (typeof currentView === 'string') {
+    if (currentView === 'O' || currentView === 'Y') {
+      const p = parts.find(x => x.category === currentView);
+      if (p) return { cat: p.category, coh: p.cohort };
+    } else if (currentView !== 'all') {
+      const m = currentView.match(/^([OY])_(\d+)/);
+      if (m) return { cat: m[1], coh: parseInt(m[2]) };
+    }
+  }
+  return { cat: n.data('firstCategory'), coh: n.data('firstCohort') || 0 };
+}
 const ORIGINAL_7 = new Set(['O_1_01','O_1_02','O_1_03','O_1_04','O_1_05','O_1_06','O_1_07']);
 const CONFIRM_PENDING_PREFIX = '확인중';
 
@@ -436,11 +509,31 @@ const COLOR = {
   original7: '#ffd54f',
   promoted:  '#ff8a65',
   assistant: '#9e9e9e',
-  cohort: {
+  cohortO: {
     1: '#4fc3f7', 2: '#66d9a7', 3: '#b191f7', 4: '#f76bcb', 5: '#ffb74d',
     6: '#f06292', 7: '#4dd0e1', 8: '#aed581', 9: '#ce93d8'
+  },
+  cohortY: {
+    0: '#ffab91',  // 연오렌지
+    1: '#80cbc4',  // 민트
+    2: '#b39ddb',  // 연보라
+    3: '#f48fb1',  // 연핑크
+    4: '#90caf9',  // 연파랑
+    5: '#c5e1a5',  // 연라임
+    6: '#ffcc80',  // 살구
+    7: '#a5d6a7',  // 연녹색
+    8: '#bcaaa4',  // 웜그레이
   }
 };
+
+// id 또는 sheet name에서 category + cohort 추출
+function parseCatCohort(idOrSheet) {
+  const m = idOrSheet.match(/^([OY])_(\d+)/);
+  return m ? { category: m[1], cohort: parseInt(m[2]) } : { category: '?', cohort: 0 };
+}
+function cohortColor(category, cohort) {
+  return (category === 'Y' ? COLOR.cohortY : COLOR.cohortO)[cohort] || '#666';
+}
 
 // ── 데이터 로드
 async function loadData() {
@@ -486,7 +579,7 @@ function buildGraph(sheetsData) {
 
   // 1) 노드 등록
   for (const { name: sheetName, rows } of sheetsData) {
-    const cohort = parseInt(sheetName.split('_')[1]);
+    const { category: sheetCat, cohort: sheetCohort } = parseCatCohort(sheetName);
     for (const row of rows) {
       const id = (row['id'] || '').trim();
       const studentName = (row['학생'] || '').trim();
@@ -495,11 +588,12 @@ function buildGraph(sheetsData) {
       const parentName = (row['부모'] || '').trim();
 
       if (!nodesMap.has(id)) {
-        const m = id.match(/^O_(\d+)_/);
-        const firstCohort = m ? parseInt(m[1]) : cohort;
+        // id에서 원 소속(category+cohort) 추출 → firstCategory / firstCohort
+        const { category: fCat, cohort: fCohort } = parseCatCohort(id);
         nodesMap.set(id, {
           id, name: studentName,
-          firstCohort, cohorts: [], roles: {},
+          firstCategory: fCat, firstCohort: fCohort,
+          participations: [],  // [{category, cohort, role}]
           firstParent: parentName,
           childCount: 0,
           isOriginal7: ORIGINAL_7.has(id),
@@ -508,24 +602,31 @@ function buildGraph(sheetsData) {
         });
       }
       const node = nodesMap.get(id);
-      if (!node.cohorts.includes(cohort)) node.cohorts.push(cohort);
-      node.roles[cohort] = role;
-      // 부모 확인중 플래그 (첫 참여 기수에서만 판단)
+      // 참여 이력 추가 (중복 안 되게)
+      const key = `${sheetCat}_${sheetCohort}`;
+      if (!node.participations.some(p => p.category === sheetCat && p.cohort === sheetCohort)) {
+        node.participations.push({ category: sheetCat, cohort: sheetCohort, role });
+      }
+      // 부모 확인중 플래그 (원 소속에서만 판단)
       const pid = (row['부모id'] || '').trim();
-      if (cohort === node.firstCohort && pid.startsWith(CONFIRM_PENDING_PREFIX)) {
+      if (sheetCat === node.firstCategory && sheetCohort === node.firstCohort
+          && pid.startsWith(CONFIRM_PENDING_PREFIX)) {
         node.pendingParent = true;
-        node.pendingHint = pid;  // 예: "확인중" 또는 "확인중(Y_5_22)"
+        node.pendingHint = pid;
       }
     }
   }
   for (const node of nodesMap.values()) {
-    node.cohorts.sort((a, b) => a - b);
-    node.firstRole = node.roles[node.firstCohort] || '학생';
+    // 정렬: category 우선 (O 먼저), 그 안에서 cohort 오름차순
+    node.participations.sort((a, b) =>
+      a.category === b.category ? a.cohort - b.cohort : (a.category === 'O' ? -1 : 1));
+    const first = node.participations[0] || { category: node.firstCategory, cohort: node.firstCohort, role: '학생' };
+    node.firstRole = first.role;
   }
 
   // 2) 엣지 등록
   for (const { name: sheetName, rows } of sheetsData) {
-    const cohort = parseInt(sheetName.split('_')[1]);
+    const { category: sheetCat, cohort: sheetCohort } = parseCatCohort(sheetName);
     for (const row of rows) {
       const id = (row['id'] || '').trim();
       const parentId = (row['부모id'] || '').trim();
@@ -537,10 +638,12 @@ function buildGraph(sheetsData) {
       }
       const key = `${parentId}->${id}`;
       if (!edgesMap.has(key)) {
-        edgesMap.set(key, { id: key, source: parentId, target: id, cohorts: [] });
+        edgesMap.set(key, { id: key, source: parentId, target: id, participations: [] });
       }
       const e = edgesMap.get(key);
-      if (!e.cohorts.includes(cohort)) e.cohorts.push(cohort);
+      if (!e.participations.some(p => p.category === sheetCat && p.cohort === sheetCohort)) {
+        e.participations.push({ category: sheetCat, cohort: sheetCohort });
+      }
     }
   }
 
@@ -576,23 +679,26 @@ async function init() {
   }
 }
 
-let currentCohortView = 'all';
+// 현재 뷰 모드: 'all' 또는 "O_5" / "Y_0" 같은 특정 기수 태그
+let currentView = 'all';
 
 // 뷰 모드에 따른 노드 색상
 // - 'all': 최초 7인은 골드, 나머지는 첫 참여 기수 색
-// - 특정 기수 c: 그 기수에서 스텝→오렌지, 조교→회색, 학생/참여→기수 색 (최초 7인은 여전히 골드)
+// - 'O' or 'Y' (카테고리 전체): 첫 참여 기수 색 (스텝/조교 승격 색 무시)
+// - 'O_5', 'Y_0' 등 특정 기수: 그 기수에서 스텝/조교/학생 색상 분리
 function nodeColorFor(n, view) {
   if (n.isOriginal7) return COLOR.original7;
-  if (view === 'all') {
-    return COLOR.cohort[n.firstCohort] || '#666';
+  if (view === 'all' || view === 'O' || view === 'Y') {
+    return cohortColor(n.firstCategory, n.firstCohort);
   }
-  const c = parseInt(view);
-  const role = n.roles ? n.roles[c] : null;
+  const { category: vCat, cohort: vCoh } = parseCatCohort(view);
+  const participation = (n.participations || []).find(p => p.category === vCat && p.cohort === vCoh);
+  const role = participation ? participation.role : null;
   if (role === '스텝') return COLOR.promoted;
   if (role === '조교') return COLOR.assistant;
-  return COLOR.cohort[c] || '#666';
+  return cohortColor(vCat, vCoh);
 }
-function nodeColor(n) { return nodeColorFor(n, currentCohortView); }
+function nodeColor(n) { return nodeColorFor(n, currentView); }
 function nodeSize(n) {
   return Math.min(96, Math.max(24, 24 + (n.childCount || 0) * 3));
 }
@@ -603,20 +709,27 @@ let cy;  // 전역 참조
 function renderGraph() {
   const elements = [];
   DATA.nodes.forEach(n => {
+    // participations를 [cohortTag] 배열로도 저장 (필터 편의)
+    const participationTags = (n.participations || []).map(p => `${p.category}_${p.cohort}`);
     elements.push({ data: {
       id: n.id, name: n.name,
-      cohorts: n.cohorts, roles: n.roles,
-      firstCohort: n.firstCohort, firstRole: n.firstRole, firstParent: n.firstParent,
+      participations: n.participations, participationTags,
+      firstCategory: n.firstCategory, firstCohort: n.firstCohort,
+      firstRole: n.firstRole, firstParent: n.firstParent,
       isOriginal7: n.isOriginal7, childCount: n.childCount,
       pendingParent: !!n.pendingParent, pendingHint: n.pendingHint || '',
-      showPending: false,  // 기수별 모드에서만 true
+      showPending: false,
       color: nodeColor(n), glow: glowColor(n),
       size: nodeSize(n),
       labelName: n.name, labelId: n.id, labelBoth: n.name + '\n' + n.id
     }});
   });
   DATA.edges.forEach(e => {
-    elements.push({ data: { id: e.id, source: e.source, target: e.target, cohorts: e.cohorts }});
+    const tags = (e.participations || []).map(p => `${p.category}_${p.cohort}`);
+    elements.push({ data: {
+      id: e.id, source: e.source, target: e.target,
+      participations: e.participations, participationTags: tags
+    }});
   });
 
   cy = cytoscape({
@@ -663,8 +776,8 @@ function renderGraph() {
         'border-opacity': 0.8,
         'font-size': 14,
         'font-weight': 800,
-        'underlay-opacity': 0.5,
-        'underlay-padding': 14
+        'underlay-opacity': 0.35,
+        'underlay-padding': 10
       }
     },
     // 부모 확인중 — 기수별 모드에서만 활성화 (점선 테두리 + 옅은 링)
@@ -767,6 +880,32 @@ function renderGraph() {
         'underlay-opacity': 0.7,
         'underlay-padding': 20
       }
+    },
+    // 타임라인 연도/카테고리 라벨 (노드 형태의 텍스트 배지)
+    {
+      selector: '.timeline-label',
+      style: {
+        'background-opacity': 0,
+        'border-width': 0,
+        'label': 'data(label)',
+        'color': '#c7cee3',
+        'font-size': 18,
+        'font-weight': 700,
+        'text-outline-width': 0,
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'text-margin-y': 0,
+        'width': 80, 'height': 32,
+        'shape': 'round-rectangle',
+        'events': 'no',
+        'underlay-opacity': 0
+      }
+    },
+    {
+      selector: '.timeline-label.cat-label',
+      style: {
+        'font-size': 14, 'color': '#8891ad', 'width': 70
+      }
     }
   ]
 });
@@ -783,17 +922,180 @@ const LAYOUTS = {
   dagre: { name: 'dagre', rankDir: 'TB', nodeSep: 32, rankSep: 90, animate: true, animationDuration: 600 },
   concentric: {
     name: 'concentric', animate: true, animationDuration: 600, minNodeSpacing: 22,
-    concentric: n => n.data('isOriginal7') ? 100 : (100 - (n.data('firstCohort') || 5) * 15),
+    // 안쪽부터 시간순. 카테고리 전체 뷰에서는 "그 카테고리 안에서 참여한 첫 기수" 기준
+    concentric: n => {
+      if (n.data('isOriginal7')) return 1000;
+      const { cat, coh } = viewCohortFor(n);
+      return 900 - cohortTimelineRank(cat, coh) * 50;
+    },
     levelWidth: () => 1
   }
 };
 let currentLayout = 'cose';
+
+// 현재 뷰 기준 엣지 표시 여부 재계산 (타임라인 → 다른 레이아웃 전환 시 필요)
+function applyEdgeVisibility() {
+  cy.edges().forEach(e => {
+    const tags = e.data('participationTags') || [];
+    const vis = currentView === 'all' ||
+      ((currentView === 'O' || currentView === 'Y') && tags.some(t => t.startsWith(currentView + '_'))) ||
+      tags.includes(currentView);
+    e.style('display', vis ? 'element' : 'none');
+  });
+}
+
 function runLayout(name) {
   currentLayout = name;
-  // 현재 보이는 요소들만 대상으로 레이아웃 → 사라진 노드가 남긴 공백 없이 재배치
+  // 이전 타임라인 ghost 노드 + 라벨 제거
+  cy.nodes('.timeline-ghost, .timeline-label').remove();
+  if (name === 'timeline') { applyTimelineLayout(); return; }
+  // 다른 레이아웃 진입 시 엣지 표시 원복
+  applyEdgeVisibility();
   const visible = cy.elements(':visible');
   const target = visible.length > 0 ? visible : cy.elements();
   target.layout(LAYOUTS[name]).run();
+}
+
+// 타임라인 레이아웃: X=연도(우측=최신), Y=카테고리 lane (O→Y→C→M)
+// 여러 기수 참여자는 각 참여 셀마다 ghost 노드로 복제 표시
+function applyTimelineLayout() {
+  // 엣지 숨김 (타임라인에서는 시간축이 주, 계보 관계는 다른 뷰에서)
+  cy.edges().style('display', 'none');
+
+  const originals = cy.nodes(':visible').filter(n => !n.data('isGhost'));
+  if (originals.length === 0) return;
+
+  // 현재 뷰 필터 조건
+  const viewOK = (p) => {
+    if (currentView === 'all') return true;
+    if (currentView === 'O' || currentView === 'Y') return p.category === currentView;
+    const t = `${p.category}_${p.cohort}`;
+    return t === currentView;
+  };
+
+  // 각 노드마다 (원본 or ghost, cat, coh) 계획
+  const placements = [];  // { node, cat, coh, isGhost }
+  const ghostsToAdd = [];
+  originals.forEach(n => {
+    const parts = (n.data('participations') || []).filter(viewOK);
+    if (parts.length === 0) return;
+    parts.forEach((p, i) => {
+      if (i === 0) {
+        placements.push({ node: n, cat: p.category, coh: p.cohort, isGhost: false });
+      } else {
+        const ghostId = `${n.id()}__g_${p.category}_${p.cohort}`;
+        ghostsToAdd.push({
+          group: 'nodes',
+          data: {
+            ...n.data(),
+            id: ghostId,
+            originalId: n.id(),
+            isGhost: true,
+          },
+          classes: 'timeline-ghost',
+        });
+        placements.push({ ghostId, cat: p.category, coh: p.cohort, isGhost: true });
+      }
+    });
+  });
+
+  // ghost 노드 실제 추가
+  if (ghostsToAdd.length > 0) cy.add(ghostsToAdd);
+  // ghost 노드도 참조 (position 지정 위해)
+  placements.forEach(pl => {
+    if (pl.isGhost) pl.node = cy.getElementById(pl.ghostId);
+  });
+
+  // 버킷: "row_year" → [placement]
+  const bucket = {};
+  const yearsSeen = new Set();
+  placements.forEach(pl => {
+    const year = cohortYear(pl.cat, pl.coh);
+    const row = (CAT_ROW[pl.cat] !== undefined) ? CAT_ROW[pl.cat] : 9;
+    if (year == null) return;
+    yearsSeen.add(year);
+    const key = `${row}_${year}`;
+    if (!bucket[key]) bucket[key] = [];
+    bucket[key].push(pl);
+  });
+  if (yearsSeen.size === 0) return;
+  const years = Array.from(yearsSeen).sort((a,b) => a - b);
+  const yearMin = years[0];
+
+  const COLS = 5;         // 셀 내부 열 수
+  const NODE_W = 62;      // 셀 내부 노드 가로 간격
+  const NODE_H = 56;      // 셀 내부 노드 세로 간격
+  const CELL_W = COLS * NODE_W + 40;  // 셀 폭
+  const LANE_PAD = 60;    // lane 간 여백
+
+  // 각 셀 최대 세로줄 (Math.ceil(count/COLS)) 기반 lane 높이
+  const laneMaxRows = {0:0, 1:0, 2:0, 3:0};
+  for (const [key, arr] of Object.entries(bucket)) {
+    const row = parseInt(key.split('_')[0]);
+    const rows = Math.ceil(arr.length / COLS);
+    if (rows > (laneMaxRows[row] || 0)) laneMaxRows[row] = rows;
+  }
+  const laneTop = {};
+  let cumY = 0;
+  for (const row of [0, 1, 2, 3]) {
+    laneTop[row] = cumY;
+    const h = Math.max(1, laneMaxRows[row]) * NODE_H + LANE_PAD;
+    cumY += h;
+  }
+
+  const positions = {};
+  for (const [key, arr] of Object.entries(bucket)) {
+    const [rowStr, yearStr] = key.split('_');
+    const row = parseInt(rowStr);
+    const year = parseInt(yearStr);
+    const cellCenterX = (year - yearMin) * CELL_W + CELL_W / 2;
+    const cellYTop = laneTop[row];
+    arr.sort((a, b) =>
+      (a.node.data('name') || '').localeCompare(b.node.data('name') || '', 'ko')
+    );
+    arr.forEach((pl, i) => {
+      const col = i % COLS;
+      const gridRow = Math.floor(i / COLS);
+      // 5열 그리드 → 중앙 정렬 (COLS 홀수면 정중앙, 짝수면 중간)
+      const x = cellCenterX + (col - (COLS - 1) / 2) * NODE_W;
+      const y = cellYTop + 40 + gridRow * NODE_H;
+      positions[pl.node.id()] = { x, y };
+    });
+  }
+
+  // 연도 라벨 (각 컬럼 상단)
+  const labelNodes = [];
+  years.forEach(year => {
+    const x = (year - yearMin) * CELL_W + CELL_W / 2;
+    const y = -50;
+    labelNodes.push({
+      group: 'nodes',
+      data: { id: `__label_year_${year}`, label: `${year}` },
+      classes: 'timeline-label year-label',
+      position: { x, y }
+    });
+  });
+  // 카테고리 라벨 (각 lane 왼쪽)
+  const CAT_LABELS = { O: '낯대', Y: '낯대Y', C: '낯대C', M: '낯대M' };
+  const rowsUsed = new Set(Object.keys(bucket).map(k => parseInt(k.split('_')[0])));
+  Object.entries(CAT_ROW).forEach(([cat, row]) => {
+    if (!rowsUsed.has(row)) return;
+    const y = laneTop[row] + 40;  // lane 상단 (첫 행과 같은 높이)
+    const x = -110;
+    labelNodes.push({
+      group: 'nodes',
+      data: { id: `__label_cat_${cat}`, label: CAT_LABELS[cat] || cat },
+      classes: 'timeline-label cat-label',
+      position: { x, y }
+    });
+  });
+  if (labelNodes.length > 0) cy.add(labelNodes);
+
+  cy.layout({
+    name: 'preset', positions,
+    fit: true, padding: 60,
+    animate: true, animationDuration: 700, animationEasing: 'ease-out'
+  }).run();
 }
 
 // ── 툴팁
@@ -802,15 +1104,21 @@ function roleChip(role) {
   const cls = { '스텝':'step', '조교':'jogyo', '참여':'chamyeo', '학생':'student' }[role] || 'student';
   return `<span class="rolechip ${cls}">${role}</span>`;
 }
+function catLabel(cat, cohort) {
+  const catName = (CATEGORIES[cat] || {}).label || cat;
+  return `${catName} ${cohort}기`;
+}
 function showTip(node, evt) {
   const d = node.data();
-  const roleHtml = d.cohorts.map(c => `<span style="color:var(--text-muted);font-size:10.5px">${c}기</span> ${roleChip(d.roles[c])}`).join(' &nbsp;');
+  const roleHtml = (d.participations || [])
+    .map(p => `<span style="color:var(--text-muted);font-size:10.5px">${catLabel(p.category, p.cohort)}</span> ${roleChip(p.role)}`)
+    .join(' &nbsp;');
   const isSpecialParent = ['스텝','조교','참여'].includes(d.firstParent);
   const parentLine = (!isSpecialParent && d.firstParent)
     ? `<div class="trow"><span class="tk">부모</span><span class="tv">${d.firstParent}</span></div>` : '';
   const upN   = node.predecessors().nodes().length;
   const downN = node.successors().nodes().length;
-  const pendingBadge = (currentCohortView !== 'all' && d.pendingParent)
+  const pendingBadge = (currentView !== 'all' && d.pendingParent)
     ? `<div class="tbadge" style="background:linear-gradient(135deg,rgba(255,183,77,0.25),rgba(255,138,101,0.25));color:#ffb74d;border-color:rgba(255,183,77,0.4)">⚠ 부모 ${d.pendingHint || '확인중'}</div>`
     : '';
   tooltip.innerHTML = `
@@ -876,37 +1184,42 @@ document.getElementById('search').addEventListener('input', e => {
   if (hits.length > 0) cy.animate({ center: { eles: hits }, zoom: 1.3 }, { duration: 500, easing: 'ease-out' });
 });
 
-// ── 기수 필터 (표시/숨김 + 색 재계산)
-document.querySelectorAll('#cohortFilter button').forEach(btn => {
+// ── 기수 필터 (표시/숨김 + 색 재계산) — 값은 'all' 또는 'O_5' / 'Y_0' 태그
+function applyView(view) {
+  currentView = view;
+  // 이전 하이라이트 리셋 (선택/후손/조상)
+  cy.elements().removeClass('faded hl-down hl-up rootpick');
+  // pendingParent 표시는 특정 기수 뷰에서만
+  const isSpecificCohort = view !== 'all' && view !== 'O' && view !== 'Y';
+  cy.nodes().forEach(n => {
+    const nData = {
+      isOriginal7: n.data('isOriginal7'),
+      firstCategory: n.data('firstCategory'),
+      firstCohort: n.data('firstCohort'),
+      participations: n.data('participations') || []
+    };
+    const col = nodeColorFor(nData, view);
+    n.data('color', col);
+    n.data('glow', col);
+    n.data('showPending', isSpecificCohort && n.data('pendingParent'));
+  });
+  // 표시/숨김
+  const isVisible = (tags) => {
+    if (view === 'all') return true;
+    if (view === 'O' || view === 'Y') return tags.some(t => t.startsWith(view + '_'));
+    return tags.includes(view);
+  };
+  cy.nodes().forEach(n => n.style('display', isVisible(n.data('participationTags') || []) ? 'element' : 'none'));
+  cy.edges().forEach(e => e.style('display', isVisible(e.data('participationTags') || []) ? 'element' : 'none'));
+  // 항상 새로 배치 (전체/카테고리/기수 모두 동일)
+  runLayout(currentLayout);
+}
+// 모든 필터 버튼 (전체 + 낯대 + 낯대Y)
+document.querySelectorAll('[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('#cohortFilter button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const c = btn.dataset.cohort;
-    currentCohortView = c;
-    // 색 + 부모확인중 표시 재계산 (모든 노드)
-    const showPendingMode = (c !== 'all');
-    cy.nodes().forEach(n => {
-      const nData = {
-        isOriginal7: n.data('isOriginal7'),
-        firstCohort: n.data('firstCohort'),
-        roles: n.data('roles')
-      };
-      const col = nodeColorFor(nData, c);
-      n.data('color', col);
-      n.data('glow', col);
-      // 부모 확인중은 기수별 모드에서만 표시
-      n.data('showPending', showPendingMode && n.data('pendingParent'));
-    });
-    // 표시/숨김
-    if (c === 'all') {
-      cy.elements().style('display', 'element');
-    } else {
-      const cn = parseInt(c);
-      cy.nodes().forEach(n => n.style('display', n.data('cohorts').includes(cn) ? 'element' : 'none'));
-      cy.edges().forEach(e => e.style('display', e.data('cohorts').includes(cn) ? 'element' : 'none'));
-    }
-    // 보이는 노드들로 재배치
-    runLayout(currentLayout);
+    applyView(btn.dataset.view);
   });
 });
 
