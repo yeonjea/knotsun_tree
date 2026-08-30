@@ -12,6 +12,7 @@
 <script src="https://unpkg.com/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.js"></script>
 <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
 <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
   :root {
     --bg-0: #06070f;
@@ -150,6 +151,11 @@
   .swatch.cohort2   { background: #66d9a7; color: #66d9a7; }
   .swatch.cohort3   { background: #b191f7; color: #b191f7; }
   .swatch.cohort4   { background: #f76bcb; color: #f76bcb; }
+  .swatch.cohort5   { background: #ffb74d; color: #ffb74d; }
+  .swatch.cohort6   { background: #f06292; color: #f06292; }
+  .swatch.cohort7   { background: #4dd0e1; color: #4dd0e1; }
+  .swatch.cohort8   { background: #aed581; color: #aed581; }
+  .swatch.cohort9   { background: #ce93d8; color: #ce93d8; }
 
   .rank .row {
     display: flex; align-items: center;
@@ -337,7 +343,7 @@
 <div id="app">
   <div id="sidebar">
     <div class="logo">낯선대학 계보</div>
-    <div class="subtitle">1~4기 · 부모→자식 초대 네트워크</div>
+    <div class="subtitle">1~9기 · 부모→자식 초대 네트워크</div>
 
     <div class="section-title">검색</div>
     <input type="text" id="search" placeholder="이름 또는 ID (예: O_1_01)">
@@ -345,10 +351,15 @@
     <div class="section-title">기수 필터</div>
     <div class="btn-group" id="cohortFilter">
       <button class="btn active" data-cohort="all">전체</button>
-      <button class="btn" data-cohort="1">1기</button>
-      <button class="btn" data-cohort="2">2기</button>
-      <button class="btn" data-cohort="3">3기</button>
-      <button class="btn" data-cohort="4">4기</button>
+      <button class="btn" data-cohort="1">1</button>
+      <button class="btn" data-cohort="2">2</button>
+      <button class="btn" data-cohort="3">3</button>
+      <button class="btn" data-cohort="4">4</button>
+      <button class="btn" data-cohort="5">5</button>
+      <button class="btn" data-cohort="6">6</button>
+      <button class="btn" data-cohort="7">7</button>
+      <button class="btn" data-cohort="8">8</button>
+      <button class="btn" data-cohort="9">9</button>
     </div>
 
     <div class="section-title">레이아웃</div>
@@ -370,10 +381,15 @@
       <div class="item"><span class="swatch gold"></span>최초 7인</div>
       <div class="item"><span class="swatch orange"></span>스텝</div>
       <div class="item"><span class="swatch gray"></span>조교</div>
-      <div class="item"><span class="swatch cohort1"></span>1기 참여</div>
-      <div class="item"><span class="swatch cohort2"></span>2기 참여</div>
-      <div class="item"><span class="swatch cohort3"></span>3기 참여</div>
-      <div class="item"><span class="swatch cohort4"></span>4기 참여</div>
+      <div class="item"><span class="swatch cohort1"></span>1기</div>
+      <div class="item"><span class="swatch cohort2"></span>2기</div>
+      <div class="item"><span class="swatch cohort3"></span>3기</div>
+      <div class="item"><span class="swatch cohort4"></span>4기</div>
+      <div class="item"><span class="swatch cohort5"></span>5기</div>
+      <div class="item"><span class="swatch cohort6"></span>6기</div>
+      <div class="item"><span class="swatch cohort7"></span>7기</div>
+      <div class="item"><span class="swatch cohort8"></span>8기</div>
+      <div class="item"><span class="swatch cohort9"></span>9기 (진행중)</div>
     </div>
 
   </div>
@@ -410,47 +426,181 @@
 </div>
 
 <script>
-const DATA = {"nodes": [{"name": "김상미", "cohorts": [1, 2, 3, 4], "roles": {"1": "스텝", "2": "스텝", "3": "스텝", "4": "참여"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 10, "id": "O_1_01"}, {"name": "김연지", "cohorts": [1, 2, 3, 4], "roles": {"1": "스텝", "2": "스텝", "3": "스텝", "4": "스텝"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 12, "id": "O_1_02"}, {"name": "박종환", "cohorts": [1, 2, 3], "roles": {"1": "스텝", "2": "스텝", "3": "참여"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 9, "id": "O_1_03"}, {"name": "백영선", "cohorts": [1, 2, 3, 4], "roles": {"1": "스텝", "2": "스텝", "3": "참여", "4": "참여"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 20, "id": "O_1_04"}, {"name": "손석호", "cohorts": [1, 2, 3], "roles": {"1": "스텝", "2": "스텝", "3": "스텝"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 21, "id": "O_1_05"}, {"name": "오지원", "cohorts": [1], "roles": {"1": "스텝"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 9, "id": "O_1_06"}, {"name": "이현재", "cohorts": [1], "roles": {"1": "스텝"}, "firstCohort": 1, "firstRole": "스텝", "firstParent": "스텝", "isOriginal7": true, "childCount": 3, "id": "O_1_07"}, {"name": "강미정", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_1_08"}, {"name": "권민희", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 1, "id": "O_1_09"}, {"name": "김도연", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 1, "id": "O_1_10"}, {"name": "김미미", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 1, "id": "O_1_11"}, {"name": "김민오", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_1_12"}, {"name": "김선경", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_13"}, {"name": "김수림", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "남지우", "isOriginal7": false, "childCount": 0, "id": "O_1_14"}, {"name": "김승환", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_15"}, {"name": "김요안", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_1_16"}, {"name": "김유진", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 0, "id": "O_1_17"}, {"name": "김은경", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "이현재", "isOriginal7": false, "childCount": 1, "id": "O_1_18"}, {"name": "김재호", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_1_19"}, {"name": "김태련", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_1_20"}, {"name": "김혜경", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 2, "id": "O_1_21"}, {"name": "김홍석", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_1_22"}, {"name": "김희정", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 1, "id": "O_1_23"}, {"name": "남지우", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 2, "id": "O_1_24"}, {"name": "노승환", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 1, "id": "O_1_25"}, {"name": "박민정", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "정주현", "isOriginal7": false, "childCount": 1, "id": "O_1_26"}, {"name": "박병욱", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_1_27"}, {"name": "박수홍", "cohorts": [1, 2], "roles": {"1": "학생", "2": "스텝"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 2, "id": "O_1_28"}, {"name": "박정인", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 1, "id": "O_1_29"}, {"name": "박지현", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "이현재", "isOriginal7": false, "childCount": 0, "id": "O_1_30"}, {"name": "박철우", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 1, "id": "O_1_31"}, {"name": "백욱희", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_32"}, {"name": "서권석", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 1, "id": "O_1_33"}, {"name": "신혜선", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 1, "id": "O_1_34"}, {"name": "엄지인", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 0, "id": "O_1_35"}, {"name": "오은", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오재우", "isOriginal7": false, "childCount": 2, "id": "O_1_36"}, {"name": "오재우", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 1, "id": "O_1_37"}, {"name": "윤동석", "cohorts": [1, 2], "roles": {"1": "학생", "2": "스텝"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 6, "id": "O_1_38"}, {"name": "이샘", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_1_39"}, {"name": "이희문", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_1_40"}, {"name": "임선우", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 2, "id": "O_1_41"}, {"name": "임수진", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_1_42"}, {"name": "임영기", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_43"}, {"name": "장석류", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 2, "id": "O_1_44"}, {"name": "정연주", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "이현재", "isOriginal7": false, "childCount": 1, "id": "O_1_45"}, {"name": "정주현", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 2, "id": "O_1_46"}, {"name": "조성은", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_47"}, {"name": "지민주", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 1, "id": "O_1_48"}, {"name": "진은정", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김희정", "isOriginal7": false, "childCount": 1, "id": "O_1_49"}, {"name": "차미애", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "강미정", "isOriginal7": false, "childCount": 0, "id": "O_1_50"}, {"name": "채홍미", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_1_51"}, {"name": "최윤라", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_1_52"}, {"name": "최지영", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_1_53"}, {"name": "한규현", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_1_54"}, {"name": "한종윤", "cohorts": [1], "roles": {"1": "학생"}, "firstCohort": 1, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_1_55"}, {"name": "이찬희", "cohorts": [1], "roles": {"1": "조교"}, "firstCohort": 1, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_1_A1"}, {"name": "조서희", "cohorts": [1], "roles": {"1": "조교"}, "firstCohort": 1, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_1_A2"}, {"name": "조휘영", "cohorts": [1], "roles": {"1": "조교"}, "firstCohort": 1, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_1_A3"}, {"name": "강태희", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_2_01"}, {"name": "강혜미", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "진은정", "isOriginal7": false, "childCount": 0, "id": "O_2_02"}, {"name": "김경신", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김은경", "isOriginal7": false, "childCount": 0, "id": "O_2_03"}, {"name": "김남건", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "지민주", "isOriginal7": false, "childCount": 2, "id": "O_2_04"}, {"name": "김동현", "cohorts": [2, 3], "roles": {"2": "학생", "3": "스텝"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 2, "id": "O_2_05"}, {"name": "김민", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_2_06"}, {"name": "김민정", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김도연", "isOriginal7": false, "childCount": 1, "id": "O_2_07"}, {"name": "김수정", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_2_08"}, {"name": "김영석", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김혜경", "isOriginal7": false, "childCount": 0, "id": "O_2_09"}, {"name": "김재용", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_2_10"}, {"name": "김진우", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_2_11"}, {"name": "김형도", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김민호", "isOriginal7": false, "childCount": 0, "id": "O_2_12"}, {"name": "김혜정", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_2_13"}, {"name": "나윤아", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "권민희", "isOriginal7": false, "childCount": 0, "id": "O_2_14"}, {"name": "마수진", "cohorts": [2, 3], "roles": {"2": "학생", "3": "스텝"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 0, "id": "O_2_15"}, {"name": "민은경", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "노승환", "isOriginal7": false, "childCount": 1, "id": "O_2_16"}, {"name": "박병희", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "오지원", "isOriginal7": false, "childCount": 0, "id": "O_2_17"}, {"name": "박석민", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_2_18"}, {"name": "배지연", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 0, "id": "O_2_19"}, {"name": "서호진", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "박수홍", "isOriginal7": false, "childCount": 0, "id": "O_2_20"}, {"name": "신종은", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "오은", "isOriginal7": false, "childCount": 0, "id": "O_2_21"}, {"name": "신혜원", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "신혜선", "isOriginal7": false, "childCount": 0, "id": "O_2_22"}, {"name": "심영규", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 2, "id": "O_2_23"}, {"name": "오은정", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "박민정", "isOriginal7": false, "childCount": 0, "id": "O_2_24"}, {"name": "오지연", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "박수홍", "isOriginal7": false, "childCount": 2, "id": "O_2_25"}, {"name": "유영재", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김혜경", "isOriginal7": false, "childCount": 0, "id": "O_2_26"}, {"name": "유창국", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_2_27"}, {"name": "유현종", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_2_28"}, {"name": "윤정은", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 2, "id": "O_2_29"}, {"name": "이민형", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 2, "id": "O_2_30"}, {"name": "이수아", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "박철우", "isOriginal7": false, "childCount": 0, "id": "O_2_31"}, {"name": "이인균", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_2_32"}, {"name": "이정민", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_2_33"}, {"name": "이진엽", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 1, "id": "O_2_34"}, {"name": "이화봉", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 1, "id": "O_2_35"}, {"name": "임소현", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "임선우", "isOriginal7": false, "childCount": 1, "id": "O_2_36"}, {"name": "임윤홍", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_2_37"}, {"name": "장석현", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 2, "id": "O_2_38"}, {"name": "장정은", "cohorts": [2, 3], "roles": {"2": "학생", "3": "스텝"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "한규현", "isOriginal7": false, "childCount": 2, "id": "O_2_39"}, {"name": "조경이", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "남지우", "isOriginal7": false, "childCount": 0, "id": "O_2_40"}, {"name": "주보라", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "김미미", "isOriginal7": false, "childCount": 2, "id": "O_2_41"}, {"name": "최미정", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "정주현", "isOriginal7": false, "childCount": 0, "id": "O_2_42"}, {"name": "최유리", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "정연주", "isOriginal7": false, "childCount": 0, "id": "O_2_43"}, {"name": "한미애", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "장석류", "isOriginal7": false, "childCount": 2, "id": "O_2_44"}, {"name": "한주연", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "서권석", "isOriginal7": false, "childCount": 0, "id": "O_2_45"}, {"name": "허윤지", "cohorts": [2], "roles": {"2": "학생"}, "firstCohort": 2, "firstRole": "학생", "firstParent": "장석류", "isOriginal7": false, "childCount": 1, "id": "O_2_46"}, {"name": "김민경", "cohorts": [2, 3], "roles": {"2": "조교", "3": "조교"}, "firstCohort": 2, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_2_A1"}, {"name": "장석현", "cohorts": [2, 3, 4], "roles": {"2": "조교", "3": "조교", "4": "조교"}, "firstCohort": 2, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_2_A2"}, {"name": "강인구", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 0, "id": "O_3_01"}, {"name": "곽진일", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이인균", "isOriginal7": false, "childCount": 1, "id": "O_3_02"}, {"name": "구동인", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "임선우", "isOriginal7": false, "childCount": 2, "id": "O_3_03"}, {"name": "국선아", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_3_04"}, {"name": "권령은", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김남건", "isOriginal7": false, "childCount": 0, "id": "O_3_05"}, {"name": "김근우", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "오은", "isOriginal7": false, "childCount": 0, "id": "O_3_06"}, {"name": "김나나", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_3_07"}, {"name": "김도현", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이민형", "isOriginal7": false, "childCount": 1, "id": "O_3_08"}, {"name": "김상헌", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "주보라", "isOriginal7": false, "childCount": 0, "id": "O_3_09"}, {"name": "김상희", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "윤정은", "isOriginal7": false, "childCount": 0, "id": "O_3_10"}, {"name": "김연숙", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김민정", "isOriginal7": false, "childCount": 0, "id": "O_3_11"}, {"name": "김영도", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 1, "id": "O_3_12"}, {"name": "김유나", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_3_13"}, {"name": "김주연", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이진엽", "isOriginal7": false, "childCount": 1, "id": "O_3_14"}, {"name": "김하늘", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_3_15"}, {"name": "문용철", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이정민", "isOriginal7": false, "childCount": 1, "id": "O_3_16"}, {"name": "박이선", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "오지연", "isOriginal7": false, "childCount": 2, "id": "O_3_17"}, {"name": "박지은", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 1, "id": "O_3_18"}, {"name": "서상혁", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "심영규", "isOriginal7": false, "childCount": 1, "id": "O_3_19"}, {"name": "성등", "cohorts": [3, 4], "roles": {"3": "학생", "4": "스텝"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "장석현", "isOriginal7": false, "childCount": 0, "id": "O_3_20"}, {"name": "성용제", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_3_21"}, {"name": "신승의", "cohorts": [3, 4], "roles": {"3": "학생", "4": "스텝"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 4, "id": "O_3_22"}, {"name": "염현선", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "임윤홍", "isOriginal7": false, "childCount": 1, "id": "O_3_23"}, {"name": "오영재", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "장석현", "isOriginal7": false, "childCount": 0, "id": "O_3_24"}, {"name": "오효석", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "윤동석", "isOriginal7": false, "childCount": 0, "id": "O_3_25"}, {"name": "온은주", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "한미애", "isOriginal7": false, "childCount": 2, "id": "O_3_26"}, {"name": "용경빈", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김동현", "isOriginal7": false, "childCount": 2, "id": "O_3_27"}, {"name": "윤명진", "cohorts": [3, 4], "roles": {"3": "학생", "4": "스텝"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "심영규", "isOriginal7": false, "childCount": 1, "id": "O_3_28"}, {"name": "윤석기", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "민은경", "isOriginal7": false, "childCount": 1, "id": "O_3_29"}, {"name": "이나경", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "임소현", "isOriginal7": false, "childCount": 1, "id": "O_3_30"}, {"name": "이봉근", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "주보라", "isOriginal7": false, "childCount": 0, "id": "O_3_31"}, {"name": "이선용", "cohorts": [3, 4], "roles": {"3": "학생", "4": "스텝"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 2, "id": "O_3_32"}, {"name": "이순호", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "유현종", "isOriginal7": false, "childCount": 2, "id": "O_3_33"}, {"name": "이슬기", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이화봉", "isOriginal7": false, "childCount": 0, "id": "O_3_34"}, {"name": "이충권", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "이민형", "isOriginal7": false, "childCount": 1, "id": "O_3_35"}, {"name": "이한진", "cohorts": [3, 4], "roles": {"3": "학생", "4": "스텝"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "한미애", "isOriginal7": false, "childCount": 3, "id": "O_3_36"}, {"name": "이혁제", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_3_37"}, {"name": "정선희", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "오지연", "isOriginal7": false, "childCount": 0, "id": "O_3_38"}, {"name": "정수지", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 0, "id": "O_3_39"}, {"name": "주용현", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "윤정은", "isOriginal7": false, "childCount": 0, "id": "O_3_40"}, {"name": "최승희", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "박종환", "isOriginal7": false, "childCount": 0, "id": "O_3_41"}, {"name": "최호연", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "허윤지", "isOriginal7": false, "childCount": 1, "id": "O_3_42"}, {"name": "최희진", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "김남건", "isOriginal7": false, "childCount": 0, "id": "O_3_43"}, {"name": "홍성미", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 1, "id": "O_3_44"}, {"name": "홍원표", "cohorts": [3], "roles": {"3": "학생"}, "firstCohort": 3, "firstRole": "학생", "firstParent": "박정인", "isOriginal7": false, "childCount": 0, "id": "O_3_45"}, {"name": "강민채", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "장정은", "isOriginal7": false, "childCount": 0, "id": "O_4_01"}, {"name": "구혜영", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이한진", "isOriginal7": false, "childCount": 0, "id": "O_4_02"}, {"name": "권정화", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이선용", "isOriginal7": false, "childCount": 0, "id": "O_4_03"}, {"name": "김묘영", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "온은주", "isOriginal7": false, "childCount": 0, "id": "O_4_04"}, {"name": "김문기", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김영도", "isOriginal7": false, "childCount": 0, "id": "O_4_05"}, {"name": "김우용", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이충권", "isOriginal7": false, "childCount": 0, "id": "O_4_06"}, {"name": "김지석", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "윤명진", "isOriginal7": false, "childCount": 0, "id": "O_4_07"}, {"name": "김철홍", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_4_08"}, {"name": "나형옥", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이나경", "isOriginal7": false, "childCount": 0, "id": "O_4_09"}, {"name": "노양석", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_4_10"}, {"name": "노주환", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이한진", "isOriginal7": false, "childCount": 0, "id": "O_4_11"}, {"name": "류지현", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_4_12"}, {"name": "류호진", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_4_13"}, {"name": "문지현", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "서상혁", "isOriginal7": false, "childCount": 0, "id": "O_4_14"}, {"name": "박근호", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이순호", "isOriginal7": false, "childCount": 0, "id": "O_4_15"}, {"name": "박채리", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김주연", "isOriginal7": false, "childCount": 0, "id": "O_4_16"}, {"name": "성원준", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김도현", "isOriginal7": false, "childCount": 0, "id": "O_4_17"}, {"name": "신성국", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "국선아", "isOriginal7": false, "childCount": 0, "id": "O_4_18"}, {"name": "신준화", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "곽진일", "isOriginal7": false, "childCount": 0, "id": "O_4_19"}, {"name": "안풍기", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "용경빈", "isOriginal7": false, "childCount": 0, "id": "O_4_20"}, {"name": "원정민", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이선용", "isOriginal7": false, "childCount": 0, "id": "O_4_21"}, {"name": "윤인향", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "신승의", "isOriginal7": false, "childCount": 0, "id": "O_4_22"}, {"name": "윤정은", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "홍성미", "isOriginal7": false, "childCount": 0, "id": "O_4_23"}, {"name": "윤중호", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이순호", "isOriginal7": false, "childCount": 0, "id": "O_4_24"}, {"name": "이두성", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "용경빈", "isOriginal7": false, "childCount": 0, "id": "O_4_25"}, {"name": "이미라", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "구동인", "isOriginal7": false, "childCount": 0, "id": "O_4_26"}, {"name": "이상환", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "염현선", "isOriginal7": false, "childCount": 0, "id": "O_4_27"}, {"name": "이성규", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "신승의", "isOriginal7": false, "childCount": 0, "id": "O_4_28"}, {"name": "이수연", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "장정은", "isOriginal7": false, "childCount": 0, "id": "O_4_29"}, {"name": "이승민", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "이한진", "isOriginal7": false, "childCount": 0, "id": "O_4_30"}, {"name": "이재환", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "윤석기", "isOriginal7": false, "childCount": 0, "id": "O_4_31"}, {"name": "이지선", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "박이선", "isOriginal7": false, "childCount": 0, "id": "O_4_32"}, {"name": "이태진", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "신승의", "isOriginal7": false, "childCount": 0, "id": "O_4_33"}, {"name": "이현아", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "최호연", "isOriginal7": false, "childCount": 0, "id": "O_4_34"}, {"name": "이희진", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김상미", "isOriginal7": false, "childCount": 0, "id": "O_4_35"}, {"name": "임거산", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김연지", "isOriginal7": false, "childCount": 0, "id": "O_4_36"}, {"name": "임영민", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_4_37"}, {"name": "전명진", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "신승의", "isOriginal7": false, "childCount": 0, "id": "O_4_38"}, {"name": "정수연", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "박이선", "isOriginal7": false, "childCount": 0, "id": "O_4_39"}, {"name": "조세정", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "박지은", "isOriginal7": false, "childCount": 0, "id": "O_4_40"}, {"name": "주영태", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "손석호", "isOriginal7": false, "childCount": 0, "id": "O_4_41"}, {"name": "진명지", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "온은주", "isOriginal7": false, "childCount": 0, "id": "O_4_42"}, {"name": "최진영", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_4_43"}, {"name": "한병주", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "문용철", "isOriginal7": false, "childCount": 0, "id": "O_4_44"}, {"name": "한아린", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "김동현", "isOriginal7": false, "childCount": 0, "id": "O_4_45"}, {"name": "한정혜", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "백영선", "isOriginal7": false, "childCount": 0, "id": "O_4_46"}, {"name": "한지은", "cohorts": [4], "roles": {"4": "학생"}, "firstCohort": 4, "firstRole": "학생", "firstParent": "구동인", "isOriginal7": false, "childCount": 0, "id": "O_4_47"}, {"name": "황혜정", "cohorts": [4], "roles": {"4": "조교"}, "firstCohort": 4, "firstRole": "조교", "firstParent": "조교", "isOriginal7": false, "childCount": 0, "id": "O_4_A1"}], "edges": [{"id": "O_1_05->O_1_08", "source": "O_1_05", "target": "O_1_08", "cohorts": [1]}, {"id": "O_1_02->O_1_09", "source": "O_1_02", "target": "O_1_09", "cohorts": [1]}, {"id": "O_1_38->O_1_10", "source": "O_1_38", "target": "O_1_10", "cohorts": [1]}, {"id": "O_1_03->O_1_11", "source": "O_1_03", "target": "O_1_11", "cohorts": [1]}, {"id": "O_1_05->O_1_12", "source": "O_1_05", "target": "O_1_12", "cohorts": [1]}, {"id": "O_1_04->O_1_13", "source": "O_1_04", "target": "O_1_13", "cohorts": [1]}, {"id": "O_1_24->O_1_14", "source": "O_1_24", "target": "O_1_14", "cohorts": [1]}, {"id": "O_1_04->O_1_15", "source": "O_1_04", "target": "O_1_15", "cohorts": [1]}, {"id": "O_1_06->O_1_16", "source": "O_1_06", "target": "O_1_16", "cohorts": [1]}, {"id": "O_1_38->O_1_17", "source": "O_1_38", "target": "O_1_17", "cohorts": [1]}, {"id": "O_1_07->O_1_18", "source": "O_1_07", "target": "O_1_18", "cohorts": [1]}, {"id": "O_1_05->O_1_19", "source": "O_1_05", "target": "O_1_19", "cohorts": [1]}, {"id": "O_1_01->O_1_20", "source": "O_1_01", "target": "O_1_20", "cohorts": [1]}, {"id": "O_1_03->O_1_21", "source": "O_1_03", "target": "O_1_21", "cohorts": [1]}, {"id": "O_1_05->O_1_22", "source": "O_1_05", "target": "O_1_22", "cohorts": [1]}, {"id": "O_1_04->O_1_23", "source": "O_1_04", "target": "O_1_23", "cohorts": [1]}, {"id": "O_1_01->O_1_24", "source": "O_1_01", "target": "O_1_24", "cohorts": [1]}, {"id": "O_1_06->O_1_25", "source": "O_1_06", "target": "O_1_25", "cohorts": [1]}, {"id": "O_1_46->O_1_26", "source": "O_1_46", "target": "O_1_26", "cohorts": [1]}, {"id": "O_1_05->O_1_27", "source": "O_1_05", "target": "O_1_27", "cohorts": [1]}, {"id": "O_1_02->O_1_28", "source": "O_1_02", "target": "O_1_28", "cohorts": [1]}, {"id": "O_1_02->O_1_29", "source": "O_1_02", "target": "O_1_29", "cohorts": [1]}, {"id": "O_1_07->O_1_30", "source": "O_1_07", "target": "O_1_30", "cohorts": [1]}, {"id": "O_1_03->O_1_31", "source": "O_1_03", "target": "O_1_31", "cohorts": [1]}, {"id": "O_1_04->O_1_32", "source": "O_1_04", "target": "O_1_32", "cohorts": [1]}, {"id": "O_1_04->O_1_33", "source": "O_1_04", "target": "O_1_33", "cohorts": [1]}, {"id": "O_1_04->O_1_34", "source": "O_1_04", "target": "O_1_34", "cohorts": [1]}, {"id": "O_1_03->O_1_35", "source": "O_1_03", "target": "O_1_35", "cohorts": [1]}, {"id": "O_1_37->O_1_36", "source": "O_1_37", "target": "O_1_36", "cohorts": [1]}, {"id": "O_1_06->O_1_37", "source": "O_1_06", "target": "O_1_37", "cohorts": [1]}, {"id": "O_1_01->O_1_38", "source": "O_1_01", "target": "O_1_38", "cohorts": [1]}, {"id": "O_1_06->O_1_39", "source": "O_1_06", "target": "O_1_39", "cohorts": [1]}, {"id": "O_1_06->O_1_40", "source": "O_1_06", "target": "O_1_40", "cohorts": [1]}, {"id": "O_1_02->O_1_41", "source": "O_1_02", "target": "O_1_41", "cohorts": [1]}, {"id": "O_1_02->O_1_42", "source": "O_1_02", "target": "O_1_42", "cohorts": [1]}, {"id": "O_1_04->O_1_43", "source": "O_1_04", "target": "O_1_43", "cohorts": [1]}, {"id": "O_1_05->O_1_44", "source": "O_1_05", "target": "O_1_44", "cohorts": [1]}, {"id": "O_1_07->O_1_45", "source": "O_1_07", "target": "O_1_45", "cohorts": [1]}, {"id": "O_1_05->O_1_46", "source": "O_1_05", "target": "O_1_46", "cohorts": [1]}, {"id": "O_1_04->O_1_47", "source": "O_1_04", "target": "O_1_47", "cohorts": [1]}, {"id": "O_1_06->O_1_48", "source": "O_1_06", "target": "O_1_48", "cohorts": [1]}, {"id": "O_1_23->O_1_49", "source": "O_1_23", "target": "O_1_49", "cohorts": [1]}, {"id": "O_1_08->O_1_50", "source": "O_1_08", "target": "O_1_50", "cohorts": [1]}, {"id": "O_1_06->O_1_51", "source": "O_1_06", "target": "O_1_51", "cohorts": [1]}, {"id": "O_1_04->O_1_52", "source": "O_1_04", "target": "O_1_52", "cohorts": [1]}, {"id": "O_1_01->O_1_53", "source": "O_1_01", "target": "O_1_53", "cohorts": [1]}, {"id": "O_1_05->O_1_54", "source": "O_1_05", "target": "O_1_54", "cohorts": [1]}, {"id": "O_1_05->O_1_55", "source": "O_1_05", "target": "O_1_55", "cohorts": [1]}, {"id": "O_1_05->O_2_01", "source": "O_1_05", "target": "O_2_01", "cohorts": [2]}, {"id": "O_1_49->O_2_02", "source": "O_1_49", "target": "O_2_02", "cohorts": [2]}, {"id": "O_1_18->O_2_03", "source": "O_1_18", "target": "O_2_03", "cohorts": [2]}, {"id": "O_1_48->O_2_04", "source": "O_1_48", "target": "O_2_04", "cohorts": [2]}, {"id": "O_1_05->O_2_05", "source": "O_1_05", "target": "O_2_05", "cohorts": [2]}, {"id": "O_1_05->O_2_06", "source": "O_1_05", "target": "O_2_06", "cohorts": [2]}, {"id": "O_1_10->O_2_07", "source": "O_1_10", "target": "O_2_07", "cohorts": [2]}, {"id": "O_1_05->O_2_08", "source": "O_1_05", "target": "O_2_08", "cohorts": [2]}, {"id": "O_1_21->O_2_09", "source": "O_1_21", "target": "O_2_09", "cohorts": [2]}, {"id": "O_1_01->O_2_10", "source": "O_1_01", "target": "O_2_10", "cohorts": [2]}, {"id": "O_1_04->O_2_11", "source": "O_1_04", "target": "O_2_11", "cohorts": [2]}, {"id": "O_1_06->O_2_13", "source": "O_1_06", "target": "O_2_13", "cohorts": [2]}, {"id": "O_1_09->O_2_14", "source": "O_1_09", "target": "O_2_14", "cohorts": [2]}, {"id": "O_1_38->O_2_15", "source": "O_1_38", "target": "O_2_15", "cohorts": [2]}, {"id": "O_1_25->O_2_16", "source": "O_1_25", "target": "O_2_16", "cohorts": [2]}, {"id": "O_1_06->O_2_17", "source": "O_1_06", "target": "O_2_17", "cohorts": [2]}, {"id": "O_1_05->O_2_18", "source": "O_1_05", "target": "O_2_18", "cohorts": [2]}, {"id": "O_1_03->O_2_19", "source": "O_1_03", "target": "O_2_19", "cohorts": [2]}, {"id": "O_1_28->O_2_20", "source": "O_1_28", "target": "O_2_20", "cohorts": [2]}, {"id": "O_1_36->O_2_21", "source": "O_1_36", "target": "O_2_21", "cohorts": [2]}, {"id": "O_1_34->O_2_22", "source": "O_1_34", "target": "O_2_22", "cohorts": [2]}, {"id": "O_1_01->O_2_23", "source": "O_1_01", "target": "O_2_23", "cohorts": [2]}, {"id": "O_1_26->O_2_24", "source": "O_1_26", "target": "O_2_24", "cohorts": [2]}, {"id": "O_1_28->O_2_25", "source": "O_1_28", "target": "O_2_25", "cohorts": [2]}, {"id": "O_1_21->O_2_26", "source": "O_1_21", "target": "O_2_26", "cohorts": [2]}, {"id": "O_1_02->O_2_27", "source": "O_1_02", "target": "O_2_27", "cohorts": [2]}, {"id": "O_1_05->O_2_28", "source": "O_1_05", "target": "O_2_28", "cohorts": [2]}, {"id": "O_1_04->O_2_29", "source": "O_1_04", "target": "O_2_29", "cohorts": [2]}, {"id": "O_1_38->O_2_30", "source": "O_1_38", "target": "O_2_30", "cohorts": [2]}, {"id": "O_1_31->O_2_31", "source": "O_1_31", "target": "O_2_31", "cohorts": [2]}, {"id": "O_1_05->O_2_32", "source": "O_1_05", "target": "O_2_32", "cohorts": [2]}, {"id": "O_1_05->O_2_33", "source": "O_1_05", "target": "O_2_33", "cohorts": [2]}, {"id": "O_1_01->O_2_34", "source": "O_1_01", "target": "O_2_34", "cohorts": [2]}, {"id": "O_1_38->O_2_35", "source": "O_1_38", "target": "O_2_35", "cohorts": [2]}, {"id": "O_1_41->O_2_36", "source": "O_1_41", "target": "O_2_36", "cohorts": [2]}, {"id": "O_1_05->O_2_37", "source": "O_1_05", "target": "O_2_37", "cohorts": [2]}, {"id": "O_1_04->O_2_38", "source": "O_1_04", "target": "O_2_38", "cohorts": [2]}, {"id": "O_1_54->O_2_39", "source": "O_1_54", "target": "O_2_39", "cohorts": [2]}, {"id": "O_1_24->O_2_40", "source": "O_1_24", "target": "O_2_40", "cohorts": [2]}, {"id": "O_1_11->O_2_41", "source": "O_1_11", "target": "O_2_41", "cohorts": [2]}, {"id": "O_1_46->O_2_42", "source": "O_1_46", "target": "O_2_42", "cohorts": [2]}, {"id": "O_1_45->O_2_43", "source": "O_1_45", "target": "O_2_43", "cohorts": [2]}, {"id": "O_1_44->O_2_44", "source": "O_1_44", "target": "O_2_44", "cohorts": [2]}, {"id": "O_1_33->O_2_45", "source": "O_1_33", "target": "O_2_45", "cohorts": [2]}, {"id": "O_1_44->O_2_46", "source": "O_1_44", "target": "O_2_46", "cohorts": [2]}, {"id": "O_1_03->O_3_01", "source": "O_1_03", "target": "O_3_01", "cohorts": [3]}, {"id": "O_2_32->O_3_02", "source": "O_2_32", "target": "O_3_02", "cohorts": [3]}, {"id": "O_1_41->O_3_03", "source": "O_1_41", "target": "O_3_03", "cohorts": [3]}, {"id": "O_1_05->O_3_04", "source": "O_1_05", "target": "O_3_04", "cohorts": [3]}, {"id": "O_2_04->O_3_05", "source": "O_2_04", "target": "O_3_05", "cohorts": [3]}, {"id": "O_1_36->O_3_06", "source": "O_1_36", "target": "O_3_06", "cohorts": [3]}, {"id": "O_1_04->O_3_07", "source": "O_1_04", "target": "O_3_07", "cohorts": [3]}, {"id": "O_2_30->O_3_08", "source": "O_2_30", "target": "O_3_08", "cohorts": [3]}, {"id": "O_2_41->O_3_09", "source": "O_2_41", "target": "O_3_09", "cohorts": [3]}, {"id": "O_2_29->O_3_10", "source": "O_2_29", "target": "O_3_10", "cohorts": [3]}, {"id": "O_2_07->O_3_11", "source": "O_2_07", "target": "O_3_11", "cohorts": [3]}, {"id": "O_1_04->O_3_12", "source": "O_1_04", "target": "O_3_12", "cohorts": [3]}, {"id": "O_1_01->O_3_13", "source": "O_1_01", "target": "O_3_13", "cohorts": [3]}, {"id": "O_2_34->O_3_14", "source": "O_2_34", "target": "O_3_14", "cohorts": [3]}, {"id": "O_1_04->O_3_15", "source": "O_1_04", "target": "O_3_15", "cohorts": [3]}, {"id": "O_2_33->O_3_16", "source": "O_2_33", "target": "O_3_16", "cohorts": [3]}, {"id": "O_2_25->O_3_17", "source": "O_2_25", "target": "O_3_17", "cohorts": [3]}, {"id": "O_1_03->O_3_18", "source": "O_1_03", "target": "O_3_18", "cohorts": [3]}, {"id": "O_2_23->O_3_19", "source": "O_2_23", "target": "O_3_19", "cohorts": [3]}, {"id": "O_2_38->O_3_20", "source": "O_2_38", "target": "O_3_20", "cohorts": [3]}, {"id": "O_1_02->O_3_21", "source": "O_1_02", "target": "O_3_21", "cohorts": [3]}, {"id": "O_1_04->O_3_22", "source": "O_1_04", "target": "O_3_22", "cohorts": [3]}, {"id": "O_2_37->O_3_23", "source": "O_2_37", "target": "O_3_23", "cohorts": [3]}, {"id": "O_2_38->O_3_24", "source": "O_2_38", "target": "O_3_24", "cohorts": [3]}, {"id": "O_1_38->O_3_25", "source": "O_1_38", "target": "O_3_25", "cohorts": [3]}, {"id": "O_2_44->O_3_26", "source": "O_2_44", "target": "O_3_26", "cohorts": [3]}, {"id": "O_2_05->O_3_27", "source": "O_2_05", "target": "O_3_27", "cohorts": [3]}, {"id": "O_2_23->O_3_28", "source": "O_2_23", "target": "O_3_28", "cohorts": [3]}, {"id": "O_2_16->O_3_29", "source": "O_2_16", "target": "O_3_29", "cohorts": [3]}, {"id": "O_2_36->O_3_30", "source": "O_2_36", "target": "O_3_30", "cohorts": [3]}, {"id": "O_2_41->O_3_31", "source": "O_2_41", "target": "O_3_31", "cohorts": [3]}, {"id": "O_1_02->O_3_32", "source": "O_1_02", "target": "O_3_32", "cohorts": [3]}, {"id": "O_2_28->O_3_33", "source": "O_2_28", "target": "O_3_33", "cohorts": [3]}, {"id": "O_2_35->O_3_34", "source": "O_2_35", "target": "O_3_34", "cohorts": [3]}, {"id": "O_2_30->O_3_35", "source": "O_2_30", "target": "O_3_35", "cohorts": [3]}, {"id": "O_2_44->O_3_36", "source": "O_2_44", "target": "O_3_36", "cohorts": [3]}, {"id": "O_1_01->O_3_37", "source": "O_1_01", "target": "O_3_37", "cohorts": [3]}, {"id": "O_2_25->O_3_38", "source": "O_2_25", "target": "O_3_38", "cohorts": [3]}, {"id": "O_1_03->O_3_39", "source": "O_1_03", "target": "O_3_39", "cohorts": [3]}, {"id": "O_2_29->O_3_40", "source": "O_2_29", "target": "O_3_40", "cohorts": [3]}, {"id": "O_1_03->O_3_41", "source": "O_1_03", "target": "O_3_41", "cohorts": [3]}, {"id": "O_2_46->O_3_42", "source": "O_2_46", "target": "O_3_42", "cohorts": [3]}, {"id": "O_2_04->O_3_43", "source": "O_2_04", "target": "O_3_43", "cohorts": [3]}, {"id": "O_1_05->O_3_44", "source": "O_1_05", "target": "O_3_44", "cohorts": [3]}, {"id": "O_1_29->O_3_45", "source": "O_1_29", "target": "O_3_45", "cohorts": [3]}, {"id": "O_2_39->O_4_01", "source": "O_2_39", "target": "O_4_01", "cohorts": [4]}, {"id": "O_3_36->O_4_02", "source": "O_3_36", "target": "O_4_02", "cohorts": [4]}, {"id": "O_3_32->O_4_03", "source": "O_3_32", "target": "O_4_03", "cohorts": [4]}, {"id": "O_3_26->O_4_04", "source": "O_3_26", "target": "O_4_04", "cohorts": [4]}, {"id": "O_3_12->O_4_05", "source": "O_3_12", "target": "O_4_05", "cohorts": [4]}, {"id": "O_3_35->O_4_06", "source": "O_3_35", "target": "O_4_06", "cohorts": [4]}, {"id": "O_3_28->O_4_07", "source": "O_3_28", "target": "O_4_07", "cohorts": [4]}, {"id": "O_1_02->O_4_08", "source": "O_1_02", "target": "O_4_08", "cohorts": [4]}, {"id": "O_3_30->O_4_09", "source": "O_3_30", "target": "O_4_09", "cohorts": [4]}, {"id": "O_1_04->O_4_10", "source": "O_1_04", "target": "O_4_10", "cohorts": [4]}, {"id": "O_3_36->O_4_11", "source": "O_3_36", "target": "O_4_11", "cohorts": [4]}, {"id": "O_1_02->O_4_12", "source": "O_1_02", "target": "O_4_12", "cohorts": [4]}, {"id": "O_1_02->O_4_13", "source": "O_1_02", "target": "O_4_13", "cohorts": [4]}, {"id": "O_3_19->O_4_14", "source": "O_3_19", "target": "O_4_14", "cohorts": [4]}, {"id": "O_3_33->O_4_15", "source": "O_3_33", "target": "O_4_15", "cohorts": [4]}, {"id": "O_3_14->O_4_16", "source": "O_3_14", "target": "O_4_16", "cohorts": [4]}, {"id": "O_3_08->O_4_17", "source": "O_3_08", "target": "O_4_17", "cohorts": [4]}, {"id": "O_3_04->O_4_18", "source": "O_3_04", "target": "O_4_18", "cohorts": [4]}, {"id": "O_3_02->O_4_19", "source": "O_3_02", "target": "O_4_19", "cohorts": [4]}, {"id": "O_3_27->O_4_20", "source": "O_3_27", "target": "O_4_20", "cohorts": [4]}, {"id": "O_3_32->O_4_21", "source": "O_3_32", "target": "O_4_21", "cohorts": [4]}, {"id": "O_3_22->O_4_22", "source": "O_3_22", "target": "O_4_22", "cohorts": [4]}, {"id": "O_3_44->O_4_23", "source": "O_3_44", "target": "O_4_23", "cohorts": [4]}, {"id": "O_3_33->O_4_24", "source": "O_3_33", "target": "O_4_24", "cohorts": [4]}, {"id": "O_3_27->O_4_25", "source": "O_3_27", "target": "O_4_25", "cohorts": [4]}, {"id": "O_3_03->O_4_26", "source": "O_3_03", "target": "O_4_26", "cohorts": [4]}, {"id": "O_3_23->O_4_27", "source": "O_3_23", "target": "O_4_27", "cohorts": [4]}, {"id": "O_3_22->O_4_28", "source": "O_3_22", "target": "O_4_28", "cohorts": [4]}, {"id": "O_2_39->O_4_29", "source": "O_2_39", "target": "O_4_29", "cohorts": [4]}, {"id": "O_3_36->O_4_30", "source": "O_3_36", "target": "O_4_30", "cohorts": [4]}, {"id": "O_3_29->O_4_31", "source": "O_3_29", "target": "O_4_31", "cohorts": [4]}, {"id": "O_3_17->O_4_32", "source": "O_3_17", "target": "O_4_32", "cohorts": [4]}, {"id": "O_3_22->O_4_33", "source": "O_3_22", "target": "O_4_33", "cohorts": [4]}, {"id": "O_3_42->O_4_34", "source": "O_3_42", "target": "O_4_34", "cohorts": [4]}, {"id": "O_1_01->O_4_35", "source": "O_1_01", "target": "O_4_35", "cohorts": [4]}, {"id": "O_1_02->O_4_36", "source": "O_1_02", "target": "O_4_36", "cohorts": [4]}, {"id": "O_1_04->O_4_37", "source": "O_1_04", "target": "O_4_37", "cohorts": [4]}, {"id": "O_3_22->O_4_38", "source": "O_3_22", "target": "O_4_38", "cohorts": [4]}, {"id": "O_3_17->O_4_39", "source": "O_3_17", "target": "O_4_39", "cohorts": [4]}, {"id": "O_3_18->O_4_40", "source": "O_3_18", "target": "O_4_40", "cohorts": [4]}, {"id": "O_1_05->O_4_41", "source": "O_1_05", "target": "O_4_41", "cohorts": [4]}, {"id": "O_3_26->O_4_42", "source": "O_3_26", "target": "O_4_42", "cohorts": [4]}, {"id": "O_1_04->O_4_43", "source": "O_1_04", "target": "O_4_43", "cohorts": [4]}, {"id": "O_3_16->O_4_44", "source": "O_3_16", "target": "O_4_44", "cohorts": [4]}, {"id": "O_2_05->O_4_45", "source": "O_2_05", "target": "O_4_45", "cohorts": [4]}, {"id": "O_1_04->O_4_46", "source": "O_1_04", "target": "O_4_46", "cohorts": [4]}, {"id": "O_3_03->O_4_47", "source": "O_3_03", "target": "O_4_47", "cohorts": [4]}]};
+// ── 시트 데이터 소스 (Google Sheets gviz CSV export)
+const SHEET_ID = "13doHJH9875nNQZE-tl_5YXi5zdj5l__0NsTnyEC-ZWE";
+const SHEETS = ['O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9'];
+const ORIGINAL_7 = new Set(['O_1_01','O_1_02','O_1_03','O_1_04','O_1_05','O_1_06','O_1_07']);
+const CONFIRM_PENDING_PREFIX = '확인중';
 
 const COLOR = {
   original7: '#ffd54f',
   promoted:  '#ff8a65',
   assistant: '#9e9e9e',
-  cohort: { 1: '#4fc3f7', 2: '#66d9a7', 3: '#b191f7', 4: '#f76bcb' }
+  cohort: {
+    1: '#4fc3f7', 2: '#66d9a7', 3: '#b191f7', 4: '#f76bcb', 5: '#ffb74d',
+    6: '#f06292', 7: '#4dd0e1', 8: '#aed581', 9: '#ce93d8'
+  }
 };
 
-function nodeColor(n) {
-  if (n.isOriginal7) return COLOR.original7;
-  const roles = Object.values(n.roles || {});
-  if (roles.includes('스텝')) return COLOR.promoted;
-  if (n.firstRole === '조교') return COLOR.assistant;
-  return COLOR.cohort[n.firstCohort] || '#666';
+// ── 데이터 로드
+async function loadData() {
+  const promises = SHEETS.map(name =>
+    fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${name}`)
+      .then(r => {
+        if (!r.ok) throw new Error(`fetch ${name} 실패: ${r.status}`);
+        return r.text();
+      })
+      .then(csv => ({ name, rows: parseCSV(csv) }))
+  );
+  return Promise.all(promises);
 }
+
+function parseCSV(text) {
+  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+  return parsed.data;
+}
+
+function buildGraph(sheetsData) {
+  const nodesMap = new Map();  // id → node
+  const edgesMap = new Map();  // "src->tgt" → edge
+  const warnings = [];
+
+  // 1) 노드 등록
+  for (const { name: sheetName, rows } of sheetsData) {
+    const cohort = parseInt(sheetName.split('_')[1]);
+    for (const row of rows) {
+      const id = (row['id'] || '').trim();
+      const studentName = (row['학생'] || '').trim();
+      if (!id || !studentName) continue;
+      const role = (row['역할'] || '').trim() || '학생';
+      const parentName = (row['부모'] || '').trim();
+
+      if (!nodesMap.has(id)) {
+        const m = id.match(/^O_(\d+)_/);
+        const firstCohort = m ? parseInt(m[1]) : cohort;
+        nodesMap.set(id, {
+          id, name: studentName,
+          firstCohort, cohorts: [], roles: {},
+          firstParent: parentName,
+          childCount: 0,
+          isOriginal7: ORIGINAL_7.has(id),
+          pendingParent: false,
+          pendingHint: '',
+        });
+      }
+      const node = nodesMap.get(id);
+      if (!node.cohorts.includes(cohort)) node.cohorts.push(cohort);
+      node.roles[cohort] = role;
+      // 부모 확인중 플래그 (첫 참여 기수에서만 판단)
+      const pid = (row['부모id'] || '').trim();
+      if (cohort === node.firstCohort && pid.startsWith(CONFIRM_PENDING_PREFIX)) {
+        node.pendingParent = true;
+        node.pendingHint = pid;  // 예: "확인중" 또는 "확인중(Y_5_22)"
+      }
+    }
+  }
+  for (const node of nodesMap.values()) {
+    node.cohorts.sort((a, b) => a - b);
+    node.firstRole = node.roles[node.firstCohort] || '학생';
+  }
+
+  // 2) 엣지 등록
+  for (const { name: sheetName, rows } of sheetsData) {
+    const cohort = parseInt(sheetName.split('_')[1]);
+    for (const row of rows) {
+      const id = (row['id'] || '').trim();
+      const parentId = (row['부모id'] || '').trim();
+      if (!id || !parentId) continue;
+      if (parentId.startsWith(CONFIRM_PENDING_PREFIX)) continue;
+      if (!nodesMap.has(parentId)) {
+        warnings.push(`부모 노드 없음: ${parentId} → ${id}`);
+        continue;
+      }
+      const key = `${parentId}->${id}`;
+      if (!edgesMap.has(key)) {
+        edgesMap.set(key, { id: key, source: parentId, target: id, cohorts: [] });
+      }
+      const e = edgesMap.get(key);
+      if (!e.cohorts.includes(cohort)) e.cohorts.push(cohort);
+    }
+  }
+
+  // 3) childCount 계산
+  for (const edge of edgesMap.values()) {
+    const p = nodesMap.get(edge.source);
+    if (p) p.childCount++;
+  }
+
+  return {
+    nodes: Array.from(nodesMap.values()),
+    edges: Array.from(edgesMap.values()),
+    warnings,
+  };
+}
+
+// ── 초기화 (fetch → build → 렌더)
+let DATA = null;
+async function init() {
+  try {
+    const sheetsData = await loadData();
+    DATA = buildGraph(sheetsData);
+    if (DATA.warnings.length > 0) console.warn('데이터 경고:', DATA.warnings);
+    renderGraph();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loader').innerHTML =
+      `<div style="color:#ff5252;text-align:center;padding:20px;max-width:400px">
+        <div style="font-size:24px;margin-bottom:12px">⚠</div>
+        <div style="margin-bottom:8px">시트 로드 실패</div>
+        <div style="font-size:12px;color:#8891ad">${err.message}</div>
+      </div>`;
+  }
+}
+
+let currentCohortView = 'all';
+
+// 뷰 모드에 따른 노드 색상
+// - 'all': 최초 7인은 골드, 나머지는 첫 참여 기수 색
+// - 특정 기수 c: 그 기수에서 스텝→오렌지, 조교→회색, 학생/참여→기수 색 (최초 7인은 여전히 골드)
+function nodeColorFor(n, view) {
+  if (n.isOriginal7) return COLOR.original7;
+  if (view === 'all') {
+    return COLOR.cohort[n.firstCohort] || '#666';
+  }
+  const c = parseInt(view);
+  const role = n.roles ? n.roles[c] : null;
+  if (role === '스텝') return COLOR.promoted;
+  if (role === '조교') return COLOR.assistant;
+  return COLOR.cohort[c] || '#666';
+}
+function nodeColor(n) { return nodeColorFor(n, currentCohortView); }
 function nodeSize(n) {
   return Math.min(96, Math.max(24, 24 + (n.childCount || 0) * 3));
 }
-function glowColor(n) {
-  const c = nodeColor(n);
-  return c;
-}
+function glowColor(n) { return nodeColor(n); }
 
-const elements = [];
-DATA.nodes.forEach(n => {
-  elements.push({ data: {
-    id: n.id, name: n.name,
-    cohorts: n.cohorts, roles: n.roles,
-    firstCohort: n.firstCohort, firstRole: n.firstRole, firstParent: n.firstParent,
-    isOriginal7: n.isOriginal7, childCount: n.childCount,
-    color: nodeColor(n), glow: glowColor(n),
-    size: nodeSize(n),
-    labelName: n.name, labelId: n.id, labelBoth: n.name + '\n' + n.id
-  }});
-});
-DATA.edges.forEach(e => {
-  elements.push({ data: { id: e.id, source: e.source, target: e.target, cohorts: e.cohorts }});
-});
+let cy;  // 전역 참조
 
-const cy = cytoscape({
+function renderGraph() {
+  const elements = [];
+  DATA.nodes.forEach(n => {
+    elements.push({ data: {
+      id: n.id, name: n.name,
+      cohorts: n.cohorts, roles: n.roles,
+      firstCohort: n.firstCohort, firstRole: n.firstRole, firstParent: n.firstParent,
+      isOriginal7: n.isOriginal7, childCount: n.childCount,
+      pendingParent: !!n.pendingParent, pendingHint: n.pendingHint || '',
+      showPending: false,  // 기수별 모드에서만 true
+      color: nodeColor(n), glow: glowColor(n),
+      size: nodeSize(n),
+      labelName: n.name, labelId: n.id, labelBoth: n.name + '\n' + n.id
+    }});
+  });
+  DATA.edges.forEach(e => {
+    elements.push({ data: { id: e.id, source: e.source, target: e.target, cohorts: e.cohorts }});
+  });
+
+  cy = cytoscape({
   container: document.getElementById('cy'),
   elements: elements,
   minZoom: 0.15,
@@ -496,6 +646,19 @@ const cy = cytoscape({
         'font-weight': 800,
         'underlay-opacity': 0.5,
         'underlay-padding': 14
+      }
+    },
+    // 부모 확인중 — 기수별 모드에서만 활성화 (점선 테두리 + 옅은 링)
+    {
+      selector: 'node[?showPending]',
+      style: {
+        'border-width': 3,
+        'border-style': 'dashed',
+        'border-color': '#ffb74d',
+        'border-opacity': 1,
+        'underlay-color': '#ffb74d',
+        'underlay-opacity': 0.35,
+        'underlay-padding': 10
       }
     },
     {
@@ -605,7 +768,14 @@ const LAYOUTS = {
     levelWidth: () => 1
   }
 };
-function runLayout(name) { cy.layout(LAYOUTS[name]).run(); }
+let currentLayout = 'cose';
+function runLayout(name) {
+  currentLayout = name;
+  // 현재 보이는 요소들만 대상으로 레이아웃 → 사라진 노드가 남긴 공백 없이 재배치
+  const visible = cy.elements(':visible');
+  const target = visible.length > 0 ? visible : cy.elements();
+  target.layout(LAYOUTS[name]).run();
+}
 
 // ── 툴팁
 const tooltip = document.getElementById('tooltip');
@@ -621,6 +791,9 @@ function showTip(node, evt) {
     ? `<div class="trow"><span class="tk">부모</span><span class="tv">${d.firstParent}</span></div>` : '';
   const upN   = node.predecessors().nodes().length;
   const downN = node.successors().nodes().length;
+  const pendingBadge = (currentCohortView !== 'all' && d.pendingParent)
+    ? `<div class="tbadge" style="background:linear-gradient(135deg,rgba(255,183,77,0.25),rgba(255,138,101,0.25));color:#ffb74d;border-color:rgba(255,183,77,0.4)">⚠ 부모 ${d.pendingHint || '확인중'}</div>`
+    : '';
   tooltip.innerHTML = `
     <div class="tname">${d.name}</div>
     <div class="tid">${d.id}</div>
@@ -629,6 +802,7 @@ function showTip(node, evt) {
     <div class="trow"><span class="tk">상위 계보</span><span class="tv" style="color:#ff5fb4;font-family:'JetBrains Mono',monospace">${upN}명</span></div>
     <div class="trow"><span class="tk">하위 계보</span><span class="tv" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">${downN}명</span></div>
     ${d.isOriginal7 ? '<div class="tbadge">★ 최초 7인</div>' : ''}
+    ${pendingBadge}
   `;
   // 노드의 실제 렌더 bounding box 기준으로 위치 계산 (커서 좌표 아님)
   const rBox = node.renderedBoundingBox();
@@ -683,12 +857,28 @@ document.getElementById('search').addEventListener('input', e => {
   if (hits.length > 0) cy.animate({ center: { eles: hits }, zoom: 1.3 }, { duration: 500, easing: 'ease-out' });
 });
 
-// ── 기수 필터
+// ── 기수 필터 (표시/숨김 + 색 재계산)
 document.querySelectorAll('#cohortFilter button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#cohortFilter button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const c = btn.dataset.cohort;
+    currentCohortView = c;
+    // 색 + 부모확인중 표시 재계산 (모든 노드)
+    const showPendingMode = (c !== 'all');
+    cy.nodes().forEach(n => {
+      const nData = {
+        isOriginal7: n.data('isOriginal7'),
+        firstCohort: n.data('firstCohort'),
+        roles: n.data('roles')
+      };
+      const col = nodeColorFor(nData, c);
+      n.data('color', col);
+      n.data('glow', col);
+      // 부모 확인중은 기수별 모드에서만 표시
+      n.data('showPending', showPendingMode && n.data('pendingParent'));
+    });
+    // 표시/숨김
     if (c === 'all') {
       cy.elements().style('display', 'element');
     } else {
@@ -696,6 +886,8 @@ document.querySelectorAll('#cohortFilter button').forEach(btn => {
       cy.nodes().forEach(n => n.style('display', n.data('cohorts').includes(cn) ? 'element' : 'none'));
       cy.edges().forEach(e => e.style('display', e.data('cohorts').includes(cn) ? 'element' : 'none'));
     }
+    // 보이는 노드들로 재배치
+    runLayout(currentLayout);
   });
 });
 
@@ -739,12 +931,16 @@ document.getElementById('zoom-focus').onclick = () => {
   }
 };
 
-// ── 초기 레이아웃 + 로더 제거
-runLayout('cose');
-setTimeout(() => {
-  document.getElementById('loader').classList.add('gone');
-  updateZoomLabel();
-}, 400);
+  // ── 초기 레이아웃 + 로더 제거
+  runLayout('cose');
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('gone');
+    updateZoomLabel();
+  }, 400);
+}  // renderGraph 종료
+
+// ── 시작
+init();
 </script>
 </body>
 </html>

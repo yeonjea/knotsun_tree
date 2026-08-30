@@ -7,3 +7,8 @@ persons.csv
 
 # macOS
 .DS_Store
+
+# 시트 export/paste 파일 (로컬 작업용)
+sheet_O_*.csv
+paste/
+index_v2.html
