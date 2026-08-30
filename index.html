@@ -243,6 +243,31 @@
     color: #fff;
   }
   #zoomctl button:active { transform: scale(0.92); }
+  #zoomctl button { position: relative; }
+  #zoomctl button::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(20, 22, 45, 0.96);
+    backdrop-filter: blur(10px);
+    color: #ecedf5;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #zoomctl button:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(-2px);
+  }
   #zoomctl .sep {
     height: 1px; margin: 4px 6px; background: var(--border);
   }
@@ -428,17 +453,17 @@
     <div id="zoominfo" class="float-panel"><span id="zoom-val">100</span>%</div>
 
     <div id="zoomctl" class="float-panel">
-      <button id="zoom-in" title="확대">
+      <button id="zoom-in" data-tip="확대" aria-label="확대">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <button id="zoom-out" title="축소">
+      <button id="zoom-out" data-tip="축소" aria-label="축소">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>
       </button>
       <div class="sep"></div>
-      <button id="zoom-fit" title="전체 보기">
+      <button id="zoom-fit" data-tip="전체 보기" aria-label="전체 보기">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
       </button>
-      <button id="zoom-focus" title="선택 계보 확대">
+      <button id="zoom-focus" data-tip="선택 계보 확대 (노드 클릭 후)" aria-label="선택 계보 확대">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
       </button>
     </div>
