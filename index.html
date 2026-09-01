@@ -717,9 +717,9 @@ function buildGraph(sheetsData) {
     }
   }
   for (const node of nodesMap.values()) {
-    // 정렬: category 우선 (O 먼저), 그 안에서 cohort 오름차순
+    // 정렬: 시간(연도)순 — COHORT_TIMELINE 인덱스 기준
     node.participations.sort((a, b) =>
-      a.category === b.category ? a.cohort - b.cohort : (a.category === 'O' ? -1 : 1));
+      cohortTimelineRank(a.category, a.cohort) - cohortTimelineRank(b.category, b.cohort));
     const first = node.participations[0] || { category: node.firstCategory, cohort: node.firstCohort, role: '학생' };
     node.firstRole = first.role;
   }
@@ -1205,8 +1205,11 @@ function applyTimelineLayout() {
 // ── 툴팁
 const tooltip = document.getElementById('tooltip');
 function roleChip(role) {
-  const cls = { '운영진':'step', '스텝':'step', '조교':'jogyo', '참여':'chamyeo', '학생':'student' }[role] || 'student';
-  return `<span class="rolechip ${cls}">${role}</span>`;
+  // "총장,운영진" 등 조합에는 "총장" 우선 표시
+  let display = role;
+  if (role.includes('총장')) display = '총장';
+  const cls = { '총장':'step', '운영진':'step', '스텝':'step', '조교':'jogyo', '참여':'chamyeo', '학생':'student' }[display] || 'student';
+  return `<span class="rolechip ${cls}">${display}</span>`;
 }
 function catLabel(cat, cohort) {
   const catName = (CATEGORIES[cat] || {}).label || cat;
