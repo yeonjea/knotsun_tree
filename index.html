@@ -159,6 +159,12 @@
   .swatch.cohortY0  { background: #ffab91; color: #ffab91; }
   .swatch.cohortY1  { background: #80cbc4; color: #80cbc4; }
   .swatch.cohortY2  { background: #b39ddb; color: #b39ddb; }
+  .swatch.cohortY3  { background: #f48fb1; color: #f48fb1; }
+  .swatch.cohortY4  { background: #90caf9; color: #90caf9; }
+  .swatch.cohortY5  { background: #c5e1a5; color: #c5e1a5; }
+  .swatch.cohortY6  { background: #ffcc80; color: #ffcc80; }
+  .swatch.cohortY7  { background: #a5d6a7; color: #a5d6a7; }
+  .swatch.cohortY8  { background: #bcaaa4; color: #bcaaa4; }
 
   .rank .row {
     display: flex; align-items: center;
@@ -401,6 +407,12 @@
       <button class="btn cohort-btn" data-view="Y_0">0기</button>
       <button class="btn cohort-btn" data-view="Y_1">1기</button>
       <button class="btn cohort-btn" data-view="Y_2">2기</button>
+      <button class="btn cohort-btn" data-view="Y_3">3기</button>
+      <button class="btn cohort-btn" data-view="Y_4">4기</button>
+      <button class="btn cohort-btn" data-view="Y_5">5기</button>
+      <button class="btn cohort-btn" data-view="Y_6">6기</button>
+      <button class="btn cohort-btn" data-view="Y_7">7기</button>
+      <button class="btn cohort-btn" data-view="Y_8">8기</button>
     </div>
 
     <div class="section-title">레이아웃</div>
@@ -437,6 +449,12 @@
       <div class="item"><span class="swatch cohortY0"></span>Y 0기 (2017)</div>
       <div class="item"><span class="swatch cohortY1"></span>Y 1기 (2018)</div>
       <div class="item"><span class="swatch cohortY2"></span>Y 2기 (2019)</div>
+      <div class="item"><span class="swatch cohortY3"></span>Y 3기 (2020)</div>
+      <div class="item"><span class="swatch cohortY4"></span>Y 4기 (2021)</div>
+      <div class="item"><span class="swatch cohortY5"></span>Y 5기 (2022)</div>
+      <div class="item"><span class="swatch cohortY6"></span>Y 6기 (2023)</div>
+      <div class="item"><span class="swatch cohortY7"></span>Y 7기 (2024)</div>
+      <div class="item"><span class="swatch cohortY8"></span>Y 8기 (2025)</div>
     </div>
 
   </div>
@@ -477,11 +495,11 @@
 const SHEET_ID = "13doHJH9875nNQZE-tl_5YXi5zdj5l__0NsTnyEC-ZWE";
 const SHEETS = [
   'O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9',
-  'Y_0','Y_1','Y_2'
+  'Y_0','Y_1','Y_2','Y_3','Y_4','Y_5','Y_6','Y_7','Y_8'
 ];
 const CATEGORIES = {
   O: { label: '낯대',   cohorts: [1,2,3,4,5,6,7,8,9] },
-  Y: { label: '낯대Y',  cohorts: [0,1,2] }
+  Y: { label: '낯대Y',  cohorts: [0,1,2,3,4,5,6,7,8] }
 };
 // 시간순 배치 순서 (동심원용). 같은 연도에서는 O > Y > C > M 순.
 // 안쪽부터: 최초 7인 → O_1 → O_2 → Y_0 → O_3 → Y_1 → ...
@@ -490,10 +508,12 @@ const COHORT_TIMELINE = [
   { cat:'O', cohort:2 }, { cat:'Y', cohort:0 },  // 2017
   { cat:'O', cohort:3 }, { cat:'Y', cohort:1 },  // 2018
   { cat:'O', cohort:4 }, { cat:'Y', cohort:2 },  // 2019
-  { cat:'O', cohort:5 },  // 2020~2022
-  { cat:'O', cohort:6 },  // 2023
-  { cat:'O', cohort:7 },  // 2024
-  { cat:'O', cohort:8 },  // 2025
+  { cat:'O', cohort:5 }, { cat:'Y', cohort:3 },  // 2020
+  { cat:'Y', cohort:4 },                          // 2021
+  { cat:'Y', cohort:5 },                          // 2022
+  { cat:'O', cohort:6 }, { cat:'Y', cohort:6 },   // 2023
+  { cat:'O', cohort:7 }, { cat:'Y', cohort:7 },   // 2024
+  { cat:'O', cohort:8 }, { cat:'Y', cohort:8 },   // 2025
   { cat:'O', cohort:9 },  // 2026
 ];
 function cohortTimelineRank(cat, cohort) {
@@ -503,7 +523,7 @@ function cohortTimelineRank(cat, cohort) {
 // (category, cohort) → 연도
 const COHORT_YEAR = {
   O: {1:2016, 2:2017, 3:2018, 4:2019, 5:2020, 6:2023, 7:2024, 8:2025, 9:2026},
-  Y: {0:2017, 1:2018, 2:2019},
+  Y: {0:2017, 1:2018, 2:2019, 3:2020, 4:2021, 5:2022, 6:2023, 7:2024, 8:2025},
 };
 function cohortYear(cat, cohort) {
   return (COHORT_YEAR[cat] || {})[cohort];
@@ -941,8 +961,9 @@ document.getElementById('stat-edges').textContent = DATA.edges.length;
 const LAYOUTS = {
   cose: {
     name: 'cose-bilkent', animate: 'end', animationDuration: 700, animationEasing: 'ease-out',
-    nodeRepulsion: 9000, idealEdgeLength: 95, gravity: 0.28, numIter: 3000, tile: false,
-    randomize: false
+    nodeRepulsion: 7000, idealEdgeLength: 80, gravity: 0.55, gravityRange: 2.0,
+    gravityCompound: 1.0, numIter: 3000, tile: false,
+    randomize: true
   },
   dagre: { name: 'dagre', rankDir: 'TB', nodeSep: 32, rankSep: 90, animate: true, animationDuration: 600 },
   concentric: {
