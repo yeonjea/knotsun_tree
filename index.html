@@ -165,6 +165,12 @@
   .swatch.cohortY6  { background: #ffcc80; color: #ffcc80; }
   .swatch.cohortY7  { background: #a5d6a7; color: #a5d6a7; }
   .swatch.cohortY8  { background: #bcaaa4; color: #bcaaa4; }
+  .swatch.cohortC1  { background: #ef5350; color: #ef5350; }
+  .swatch.cohortC2  { background: #26a69a; color: #26a69a; }
+  .swatch.cohortC3  { background: #7e57c2; color: #7e57c2; }
+  .swatch.cohortC4  { background: #ec407a; color: #ec407a; }
+  .swatch.cohortC5  { background: #5c6bc0; color: #5c6bc0; }
+  .swatch.cohortC6  { background: #66bb6a; color: #66bb6a; }
 
   .rank .row {
     display: flex; align-items: center;
@@ -415,6 +421,17 @@
       <button class="btn cohort-btn" data-view="Y_8">8기</button>
     </div>
 
+    <div class="section-title" style="margin-top:12px">낯대C</div>
+    <div class="btn-group">
+      <button class="btn cohort-btn" data-view="C">전체</button>
+      <button class="btn cohort-btn" data-view="C_1">1기</button>
+      <button class="btn cohort-btn" data-view="C_2">2기</button>
+      <button class="btn cohort-btn" data-view="C_3">3기</button>
+      <button class="btn cohort-btn" data-view="C_4">4기</button>
+      <button class="btn cohort-btn" data-view="C_5">5기</button>
+      <button class="btn cohort-btn" data-view="C_6">6기</button>
+    </div>
+
     <div class="section-title">레이아웃</div>
     <div class="btn-group" id="layoutSelector">
       <button class="btn active" data-layout="cose">관계망</button>
@@ -433,7 +450,7 @@
     <div class="section-title">범례</div>
     <div class="legend">
       <div class="item"><span class="swatch gold"></span>최초 7인</div>
-      <div class="item"><span class="swatch orange"></span>스텝 (기수별 모드)</div>
+      <div class="item"><span class="swatch orange"></span>운영진 (기수별 모드)</div>
       <div class="item"><span class="swatch gray"></span>조교 (기수별 모드)</div>
       <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">낯대</div>
       <div class="item"><span class="swatch cohort1"></span>1기 (2016)</div>
@@ -455,6 +472,13 @@
       <div class="item"><span class="swatch cohortY6"></span>Y 6기 (2023)</div>
       <div class="item"><span class="swatch cohortY7"></span>Y 7기 (2024)</div>
       <div class="item"><span class="swatch cohortY8"></span>Y 8기 (2025)</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">낯대C</div>
+      <div class="item"><span class="swatch cohortC1"></span>C 1기 (2020)</div>
+      <div class="item"><span class="swatch cohortC2"></span>C 2기 (2021)</div>
+      <div class="item"><span class="swatch cohortC3"></span>C 3기 (2022)</div>
+      <div class="item"><span class="swatch cohortC4"></span>C 4기 (2023)</div>
+      <div class="item"><span class="swatch cohortC5"></span>C 5기 (2024)</div>
+      <div class="item"><span class="swatch cohortC6"></span>C 6기 (2025)</div>
     </div>
 
   </div>
@@ -495,11 +519,13 @@
 const SHEET_ID = "13doHJH9875nNQZE-tl_5YXi5zdj5l__0NsTnyEC-ZWE";
 const SHEETS = [
   'O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9',
-  'Y_0','Y_1','Y_2','Y_3','Y_4','Y_5','Y_6','Y_7','Y_8'
+  'Y_0','Y_1','Y_2','Y_3','Y_4','Y_5','Y_6','Y_7','Y_8',
+  'C_1','C_2','C_3','C_4','C_5','C_6'
 ];
 const CATEGORIES = {
   O: { label: '낯대',   cohorts: [1,2,3,4,5,6,7,8,9] },
-  Y: { label: '낯대Y',  cohorts: [0,1,2,3,4,5,6,7,8] }
+  Y: { label: '낯대Y',  cohorts: [0,1,2,3,4,5,6,7,8] },
+  C: { label: '낯대C',  cohorts: [1,2,3,4,5,6] }
 };
 // 시간순 배치 순서 (동심원용). 같은 연도에서는 O > Y > C > M 순.
 // 안쪽부터: 최초 7인 → O_1 → O_2 → Y_0 → O_3 → Y_1 → ...
@@ -508,12 +534,12 @@ const COHORT_TIMELINE = [
   { cat:'O', cohort:2 }, { cat:'Y', cohort:0 },  // 2017
   { cat:'O', cohort:3 }, { cat:'Y', cohort:1 },  // 2018
   { cat:'O', cohort:4 }, { cat:'Y', cohort:2 },  // 2019
-  { cat:'O', cohort:5 }, { cat:'Y', cohort:3 },  // 2020
-  { cat:'Y', cohort:4 },                          // 2021
-  { cat:'Y', cohort:5 },                          // 2022
-  { cat:'O', cohort:6 }, { cat:'Y', cohort:6 },   // 2023
-  { cat:'O', cohort:7 }, { cat:'Y', cohort:7 },   // 2024
-  { cat:'O', cohort:8 }, { cat:'Y', cohort:8 },   // 2025
+  { cat:'O', cohort:5 }, { cat:'Y', cohort:3 }, { cat:'C', cohort:1 },  // 2020
+  { cat:'Y', cohort:4 }, { cat:'C', cohort:2 },                          // 2021
+  { cat:'Y', cohort:5 }, { cat:'C', cohort:3 },                          // 2022
+  { cat:'O', cohort:6 }, { cat:'Y', cohort:6 }, { cat:'C', cohort:4 },   // 2023
+  { cat:'O', cohort:7 }, { cat:'Y', cohort:7 }, { cat:'C', cohort:5 },   // 2024
+  { cat:'O', cohort:8 }, { cat:'Y', cohort:8 }, { cat:'C', cohort:6 },   // 2025
   { cat:'O', cohort:9 },  // 2026
 ];
 function cohortTimelineRank(cat, cohort) {
@@ -524,11 +550,13 @@ function cohortTimelineRank(cat, cohort) {
 const COHORT_YEAR = {
   O: {1:2016, 2:2017, 3:2018, 4:2019, 5:2020, 6:2023, 7:2024, 8:2025, 9:2026},
   Y: {0:2017, 1:2018, 2:2019, 3:2020, 4:2021, 5:2022, 6:2023, 7:2024, 8:2025},
+  C: {1:2020, 2:2021, 3:2022, 4:2023, 5:2024, 6:2025},
 };
 function cohortYear(cat, cohort) {
   return (COHORT_YEAR[cat] || {})[cohort];
 }
 const CAT_ROW = { O:0, Y:1, C:2, M:3 };
+const CAT_LABELS = { O:'낯대', Y:'낯대Y', C:'낯대C', M:'낯대M' };
 
 // 현재 뷰 모드에 따라 노드의 (카테고리, 기수) 반환
 // - 'all': 원 소속 (firstCategory / firstCohort)
@@ -568,16 +596,27 @@ const COLOR = {
     6: '#ffcc80',  // 살구
     7: '#a5d6a7',  // 연녹색
     8: '#bcaaa4',  // 웜그레이
+  },
+  cohortC: {
+    1: '#ef5350',  // 레드
+    2: '#26a69a',  // 틸
+    3: '#7e57c2',  // 딥 바이올렛
+    4: '#ec407a',  // 마젠타
+    5: '#5c6bc0',  // 인디고
+    6: '#66bb6a',  // 그린
   }
 };
 
 // id 또는 sheet name에서 category + cohort 추출
 function parseCatCohort(idOrSheet) {
-  const m = idOrSheet.match(/^([OY])_(\d+)/);
+  const m = idOrSheet.match(/^([OYC])_(\d+)/);
   return m ? { category: m[1], cohort: parseInt(m[2]) } : { category: '?', cohort: 0 };
 }
 function cohortColor(category, cohort) {
-  return (category === 'Y' ? COLOR.cohortY : COLOR.cohortO)[cohort] || '#666';
+  const palette = category === 'Y' ? COLOR.cohortY
+                : category === 'C' ? COLOR.cohortC
+                : COLOR.cohortO;
+  return palette[cohort] || '#666';
 }
 
 // ── 데이터 로드
@@ -729,8 +768,8 @@ let currentView = 'all';
 
 // 뷰 모드에 따른 노드 색상
 // - 'all': 최초 7인은 골드, 나머지는 첫 참여 기수 색
-// - 'O' or 'Y' (카테고리 전체): 첫 참여 기수 색 (스텝/조교 승격 색 무시)
-// - 'O_5', 'Y_0' 등 특정 기수: 그 기수에서 스텝/조교/학생 색상 분리
+// - 'O' or 'Y' (카테고리 전체): 첫 참여 기수 색 (운영진/조교 승격 색 무시)
+// - 'O_5', 'Y_0' 등 특정 기수: 그 기수에서 운영진/조교/학생 색상 분리
 function nodeColorFor(n, view) {
   if (n.isOriginal7) return COLOR.original7;
   if (view === 'all' || view === 'O' || view === 'Y') {
@@ -739,7 +778,8 @@ function nodeColorFor(n, view) {
   const { category: vCat, cohort: vCoh } = parseCatCohort(view);
   const participation = (n.participations || []).find(p => p.category === vCat && p.cohort === vCoh);
   const role = participation ? participation.role : null;
-  if (role === '스텝') return COLOR.promoted;
+  // 하위호환: '스텝' 또는 '운영진'
+  if (role === '운영진' || role === '스텝') return COLOR.promoted;
   if (role === '조교') return COLOR.assistant;
   return cohortColor(vCat, vCoh);
 }
@@ -1149,7 +1189,7 @@ function applyTimelineLayout() {
 // ── 툴팁
 const tooltip = document.getElementById('tooltip');
 function roleChip(role) {
-  const cls = { '스텝':'step', '조교':'jogyo', '참여':'chamyeo', '학생':'student' }[role] || 'student';
+  const cls = { '운영진':'step', '스텝':'step', '조교':'jogyo', '참여':'chamyeo', '학생':'student' }[role] || 'student';
   return `<span class="rolechip ${cls}">${role}</span>`;
 }
 function catLabel(cat, cohort) {
@@ -1161,7 +1201,7 @@ function showTip(node, evt) {
   const roleHtml = (d.participations || [])
     .map(p => `<span style="color:var(--text-muted);font-size:10.5px">${catLabel(p.category, p.cohort)}</span> ${roleChip(p.role)}`)
     .join(' &nbsp;');
-  const isSpecialParent = ['스텝','조교','참여'].includes(d.firstParent);
+  const isSpecialParent = ['운영진','스텝','조교','참여'].includes(d.firstParent);
   const parentLine = (!isSpecialParent && d.firstParent)
     ? `<div class="trow"><span class="tk">부모</span><span class="tv">${d.firstParent}</span></div>` : '';
   const pendingBadge = (currentView !== 'all' && d.pendingParent)
