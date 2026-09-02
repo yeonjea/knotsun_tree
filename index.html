@@ -80,7 +80,10 @@
   .subtitle {
     font-size: 12px; color: var(--text-dim); letter-spacing: 0.02em;
     margin-bottom: 24px;
+    transition: opacity 0.6s ease;
+    min-height: 1.2em;
   }
+  .subtitle.fade-out { opacity: 0; }
   .section-title {
     font-size: 10px; font-weight: 600; text-transform: uppercase;
     color: var(--text-muted); letter-spacing: 0.15em;
@@ -525,7 +528,7 @@
 
 <script>
 // ── 시트 데이터 소스 (Google Sheets gviz CSV export)
-const SHEET_ID = "13doHJH9875nNQZE-tl_5YXi5zdj5l__0NsTnyEC-ZWE";
+const SHEET_ID = "1qE0_gknHoD_SOddiP0vhz8t2ZNvn0nFa9MvxR6vkI9Y";
 const SHEETS = [
   'O_1','O_2','O_3','O_4','O_5','O_6','O_7','O_8','O_9',
   'Y_0','Y_1','Y_2','Y_3','Y_4','Y_5','Y_6','Y_7','Y_8',
@@ -1404,6 +1407,22 @@ document.getElementById('zoom-focus').onclick = () => {
 
 // ── 시작
 init();
+
+// ── subtitle 교차 표시
+(function() {
+  const messages = ['일상이 이상이 되는 곳, 낯대', '나의 우주가 너의 우주와 연결되는 곳, 낯대'];
+  let idx = 0;
+  const el = document.querySelector('.subtitle');
+  if (!el) return;
+  setInterval(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => {
+      idx = (idx + 1) % messages.length;
+      el.textContent = messages[idx];
+      el.classList.remove('fade-out');
+    }, 600);
+  }, 4500);
+})();
 </script>
 </body>
 </html>
