@@ -390,7 +390,7 @@
     <div class="subtitle">일상이 이상이 되는 곳, 낯대</div>
 
     <div class="section-title">검색</div>
-    <input type="text" id="search" placeholder="이름 또는 ID (예: O_1_01)">
+    <input type="search" id="search" placeholder="이름 또는 ID (예: O_1_01)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 
     <div class="section-title">전체</div>
     <div class="btn-group" id="cohortFilter">
@@ -580,11 +580,11 @@ const CAT_LABELS = { O:'낯대', Y:'낯대Y', C:'낯대C', M:'낯대M' };
 function viewCohortFor(n) {
   const parts = n.data('participations') || [];
   if (typeof currentView === 'string') {
-    if (currentView === 'O' || currentView === 'Y') {
+    if (isCategoryView(currentView)) {
       const p = parts.find(x => x.category === currentView);
       if (p) return { cat: p.category, coh: p.cohort };
     } else if (currentView !== 'all') {
-      const m = currentView.match(/^([OY])_(\d+)/);
+      const m = currentView.match(/^([OYCM])_(\d+)/);
       if (m) return { cat: m[1], coh: parseInt(m[2]) };
     }
   }
@@ -636,6 +636,10 @@ function cohortColor(category, cohort) {
                 : category === 'M' ? COLOR.cohortM
                 : COLOR.cohortO;
   return palette[cohort] || '#666';
+}
+// 카테고리 전체 뷰 여부 ('O','Y','C','M')
+function isCategoryView(view) {
+  return view === 'O' || view === 'Y' || view === 'C' || view === 'M';
 }
 
 // ── 데이터 로드
@@ -791,7 +795,7 @@ let currentView = 'all';
 // - 'O_5', 'Y_0' 등 특정 기수: 그 기수에서 운영진/조교/학생 색상 분리
 function nodeColorFor(n, view) {
   if (n.isOriginal7) return COLOR.original7;
-  if (view === 'all' || view === 'O' || view === 'Y') {
+  if (view === 'all' || isCategoryView(view)) {
     return cohortColor(n.firstCategory, n.firstCohort);
   }
   const { category: vCat, cohort: vCoh } = parseCatCohort(view);
@@ -1043,7 +1047,7 @@ function applyEdgeVisibility() {
   cy.edges().forEach(e => {
     const tags = e.data('participationTags') || [];
     const vis = currentView === 'all' ||
-      ((currentView === 'O' || currentView === 'Y') && tags.some(t => t.startsWith(currentView + '_'))) ||
+      (isCategoryView(currentView) && tags.some(t => t.startsWith(currentView + '_'))) ||
       tags.includes(currentView);
     e.style('display', vis ? 'element' : 'none');
   });
@@ -1073,7 +1077,7 @@ function applyTimelineLayout() {
   // 현재 뷰 필터 조건
   const viewOK = (p) => {
     if (currentView === 'all') return true;
-    if (currentView === 'O' || currentView === 'Y') return p.category === currentView;
+    if (isCategoryView(currentView)) return p.category === currentView;
     const t = `${p.category}_${p.cohort}`;
     return t === currentView;
   };
@@ -1326,7 +1330,7 @@ function applyView(view) {
   currentView = view;
   // 이전 하이라이트 리셋 (선택/후손/조상)
   cy.elements().removeClass('faded hl-down hl-up rootpick');
-  const isSpecificCohort = view !== 'all' && view !== 'O' && view !== 'Y';
+  const isSpecificCohort = view !== 'all' && !isCategoryView(view);
   cy.nodes().forEach(n => {
     const nData = {
       isOriginal7: n.data('isOriginal7'),
@@ -1341,7 +1345,7 @@ function applyView(view) {
   });
   const isVisible = (tags) => {
     if (view === 'all') return true;
-    if (view === 'O' || view === 'Y') return tags.some(t => t.startsWith(view + '_'));
+    if (isCategoryView(view)) return tags.some(t => t.startsWith(view + '_'));
     return tags.includes(view);
   };
   cy.nodes().forEach(n => n.style('display', isVisible(n.data('participationTags') || []) ? 'element' : 'none'));
