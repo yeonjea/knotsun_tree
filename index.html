@@ -172,6 +172,25 @@
     color: var(--text);
     transform: translateX(2px);
   }
+  .footer-link {
+    display: block;
+    margin-top: 20px;
+    padding: 10px 12px;
+    text-align: center;
+    background: rgba(255, 213, 79, 0.08);
+    border: 1px solid rgba(255, 213, 79, 0.25);
+    border-radius: 8px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .footer-link:hover {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.5);
+    transform: translateY(-1px);
+  }
   .legend .item.clickable.active {
     background: rgba(0, 217, 255, 0.14);
     color: var(--cyan);
@@ -528,6 +547,10 @@
       <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">낯대M</div>
       <div class="item clickable" data-view="M_1"><span class="swatch cohortM1"></span>M 1기 (2020~2021)</div>
     </div>
+
+    <a class="footer-link" href="https://knotsun.kr/" target="_blank" rel="noopener">
+      낯선대학 10주년 축제 →
+    </a>
 
   </div>
 
