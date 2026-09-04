@@ -2,17 +2,17 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>낯선대학 가계 네트워크</title>
+<title>낯선대학 계보</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23ffd54f'/%3E%3C/svg%3E">
-<meta name="description" content="일상이 이상이 되는 곳, 낯선대학의 가계를 시각화한 네트워크 그래프">
+<meta name="description" content="일상이 이상이 되는 곳, 낯선대학의 계보를 시각화한 네트워크 그래프">
 <meta property="og:type" content="website">
-<meta property="og:title" content="낯선대학 가계">
+<meta property="og:title" content="낯선대학 계보">
 <meta property="og:description" content="일상이 이상이 되는 곳, 낯대">
 <meta property="og:image" content="https://yeonjea.github.io/knotsun_tree/thum.png">
 <meta property="og:url" content="https://yeonjea.github.io/knotsun_tree/">
-<meta property="og:site_name" content="낯선대학 가계">
+<meta property="og:site_name" content="낯선대학 계보">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="낯선대학 가계">
+<meta name="twitter:title" content="낯선대학 계보">
 <meta name="twitter:description" content="일상이 이상이 되는 곳, 낯대">
 <meta name="twitter:image" content="https://yeonjea.github.io/knotsun_tree/thum.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -418,7 +418,7 @@
 
 <div id="app">
   <div id="sidebar">
-    <div class="logo">낯선대학 가계</div>
+    <div class="logo">낯선대학 계보</div>
     <div class="subtitle">일상이 이상이 되는 곳, 낯대</div>
 
     <div class="section-title">검색</div>
@@ -553,7 +553,7 @@
       <button id="zoom-fit" data-tip="전체 보기" aria-label="전체 보기">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
       </button>
-      <button id="zoom-focus" data-tip="선택 가계 확대 (노드 클릭 후)" aria-label="선택 가계 확대">
+      <button id="zoom-focus" data-tip="선택 계보 확대 (노드 클릭 후)" aria-label="선택 계보 확대">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
       </button>
     </div>
@@ -1106,7 +1106,7 @@ function runLayout(name) {
 // 타임라인 레이아웃: X=연도(우측=최신), Y=카테고리 lane (O→Y→C→M)
 // 여러 기수 참여자는 각 참여 셀마다 ghost 노드로 복제 표시
 function applyTimelineLayout() {
-  // 엣지 숨김 (타임라인에서는 시간축이 주, 가계 관계는 다른 뷰에서)
+  // 엣지 숨김 (타임라인에서는 시간축이 주, 계보 관계는 다른 뷰에서)
   cy.edges().style('display', 'none');
 
   const originals = cy.nodes(':visible').filter(n => !n.data('isGhost'));
@@ -1271,18 +1271,18 @@ function showTip(node, evt) {
   const pendingBadge = (currentView !== 'all' && d.pendingParent)
     ? `<div class="tbadge" style="background:linear-gradient(135deg,rgba(255,183,77,0.25),rgba(255,138,101,0.25));color:#ffb74d;border-color:rgba(255,183,77,0.4)">⚠ 부모 ${d.pendingHint || '확인중'}</div>`
     : '';
-  // 가계 카운트: ghost는 엣지 없으므로 표시 안 함
+  // 계보 카운트: ghost는 엣지 없으므로 표시 안 함
   let lineageHtml = '';
   let ghostInfo = '';
   if (d.isGhost) {
     const originLabel = catLabel(d.firstCategory, d.firstCohort);
-    ghostInfo = `<div class="tbadge" style="background:rgba(200,200,255,0.12);color:#c7cee3;border-color:rgba(200,200,255,0.25);text-align:center;line-height:1.5">가계를 보려면<br><b style="color:#fff">${originLabel}</b> 셀의 <b>${d.name}</b>을 클릭하세요</div>`;
+    ghostInfo = `<div class="tbadge" style="background:rgba(200,200,255,0.12);color:#c7cee3;border-color:rgba(200,200,255,0.25);text-align:center;line-height:1.5">계보를 보려면<br><b style="color:#fff">${originLabel}</b> 셀의 <b>${d.name}</b>을 클릭하세요</div>`;
   } else {
     const upN   = node.predecessors().nodes().length;
     const downN = node.successors().nodes().length;
     lineageHtml = `
-      <div class="trow"><span class="tk">상위 가계</span><span class="tv" style="color:#ff5fb4;font-family:'JetBrains Mono',monospace">${upN}명</span></div>
-      <div class="trow"><span class="tk">하위 가계</span><span class="tv" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">${downN}명</span></div>`;
+      <div class="trow"><span class="tk">상위 계보</span><span class="tv" style="color:#ff5fb4;font-family:'JetBrains Mono',monospace">${upN}명</span></div>
+      <div class="trow"><span class="tk">하위 계보</span><span class="tv" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">${downN}명</span></div>`;
   }
   tooltip.innerHTML = `
     <div class="tname">${d.name}</div>
